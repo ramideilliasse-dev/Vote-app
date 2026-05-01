@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <title>Vote App</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-
 <style>
 body {
 font-family: Arial;
@@ -19,6 +16,7 @@ background: white;
 margin: 20px;
 padding: 20px;
 border-radius: 10px;
+box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 button {
@@ -28,7 +26,12 @@ border: none;
 border-radius: 8px;
 background: blue;
 color: white;
-color: white;
+}
+
+input {
+padding: 10px;
+width: 80%;
+margin: 5px;
 }
 </style>
 </head>
@@ -37,7 +40,18 @@ color: white;
 
 <h1>🔥 Application de Vote</h1>
 
+<!-- 🔐 AUTH -->
 <div class="card">
+<h2>Connexion</h2>
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Mot de passe"><br>
+
+<button onclick="register()">S'inscrire</button>
+<button onclick="login()">Se connecter</button>
+</div>
+
+<!-- 🗳️ APP -->
+<div class="card" id="app" style="display:none;">
 <h2>Qui est le meilleur ?</h2>
 
 <button onclick="vote('A')">Option A</button>
@@ -48,20 +62,62 @@ color: white;
 
 <script type="module">
 
-// 🔥 CONFIG (remplace avec ton code Firebase)
+// 🔥 IMPORT FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+// 🔑 TA CONFIG
 const firebaseConfig = {
-  apiKey: "TON_API_KEY",
-  authDomain: "TON_DOMAIN",
-  projectId: "TON_PROJECT_ID",
+  apiKey: "AIzaSyBvVeNIygIE6GNtuMrhJabmO3ffL3Fz6WA",
+  authDomain: "vote-app-cfdf3.firebaseapp.com",
+  projectId: "vote-app-cfdf3",
+  storageBucket: "vote-app-cfdf3.firebasestorage.app",
+  messagingSenderId: "1069813496162",
+  appId: "1:1069813496162:web:c3f839104237cdc395143b"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// 🚀 INITIALISATION
+const appFirebase = initializeApp(firebaseConfig);
+const db = getFirestore(appFirebase);
+const auth = getAuth(appFirebase);
 
-// 📊 Charger les votes
+// 👤 INSCRIPTION
+window.register = async function(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("Compte créé !");
+  } catch(e){
+    alert(e.message);
+  }
+}
+
+// 🔐 CONNEXION
+window.login = async function(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    alert("Connecté !");
+  } catch(e){
+    alert(e.message);
+  }
+}
+
+// 🔄 SURVEILLER CONNEXION
+onAuthStateChanged(auth, (user) => {
+  if(user){
+    document.getElementById("app").style.display = "block";
+    loadVotes();
+  }
+});
+
+// 📊 CHARGER VOTES
 async function loadVotes() {
   const ref = doc(db, "votes", "global");
   const snap = await getDoc(ref);
@@ -75,7 +131,7 @@ async function loadVotes() {
   }
 }
 
-// 🗳️ Voter
+// 🗳️ VOTER
 window.vote = async function(option) {
   const ref = doc(db, "votes", "global");
   const snap = await getDoc(ref);
@@ -91,9 +147,6 @@ window.vote = async function(option) {
   await updateDoc(ref, data);
   loadVotes();
 }
-
-// 🔄 Charger au démarrage
-loadVotes();
 
 </script>
 
