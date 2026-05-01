@@ -10,6 +10,7 @@
 
 <h1>🔥 Application de Vote</h1>
 
+<!-- 🔐 AUTH -->
 <div class="card">
 <h2>Connexion</h2>
 <input id="email" placeholder="Email"><br>
@@ -19,6 +20,7 @@
 <button onclick="login()">Se connecter</button>
 </div>
 
+<!-- 🗳️ ANCIEN SYSTEME (on garde mais caché après login) -->
 <div class="card" id="app" style="display:none;">
 <h2>Qui est le meilleur ?</h2>
 
@@ -27,6 +29,20 @@
 
 <p id="result">Chargement...</p>
 </div>
+
+<!-- 🆕 CRÉER UN POST -->
+<div class="card" id="createPost" style="display:none;">
+<h2>Créer un vote</h2>
+
+<input id="question" placeholder="Question"><br>
+<input id="optionA" placeholder="Option A"><br>
+<input id="optionB" placeholder="Option B"><br>
+
+<button onclick="createPost()">Publier</button>
+</div>
+
+<!-- 🆕 FEED -->
+<div id="feed"></div>
 
 <script type="module" src="app.js"></script>
 
