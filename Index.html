@@ -1,0 +1,101 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Vote App</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+
+<style>
+body {
+font-family: Arial;
+text-align: center;
+background: #f5f5f5;
+}
+
+.card {
+background: white;
+margin: 20px;
+padding: 20px;
+border-radius: 10px;
+}
+
+button {
+padding: 10px 20px;
+margin: 10px;
+border: none;
+border-radius: 8px;
+background: blue;
+color: white;
+color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔥 Application de Vote</h1>
+
+<div class="card">
+<h2>Qui est le meilleur ?</h2>
+
+<button onclick="vote('A')">Option A</button>
+<button onclick="vote('B')">Option B</button>
+
+<p id="result">Chargement...</p>
+</div>
+
+<script type="module">
+
+// 🔥 CONFIG (remplace avec ton code Firebase)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "TON_API_KEY",
+  authDomain: "TON_DOMAIN",
+  projectId: "TON_PROJECT_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 📊 Charger les votes
+async function loadVotes() {
+  const ref = doc(db, "votes", "global");
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    const data = snap.data();
+    document.getElementById("result").innerText =
+      "Votes: A = " + data.A + " | B = " + data.B;
+  } else {
+    await setDoc(ref, { A: 0, B: 0 });
+  }
+}
+
+// 🗳️ Voter
+window.vote = async function(option) {
+  const ref = doc(db, "votes", "global");
+  const snap = await getDoc(ref);
+
+  let data = snap.data();
+
+  if(option === 'A'){
+    data.A++;
+  } else {
+    data.B++;
+  }
+
+  await updateDoc(ref, data);
+  loadVotes();
+}
+
+// 🔄 Charger au démarrage
+loadVotes();
+
+</script>
+
+</body>
+</html>
