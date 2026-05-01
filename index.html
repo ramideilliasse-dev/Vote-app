@@ -1,46 +1,15 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <title>Vote App</title>
-
-<style>
-body {
-font-family: Arial;
-text-align: center;
-background: #f5f5f5;
-}
-
-.card {
-background: white;
-margin: 20px;
-padding: 20px;
-border-radius: 10px;
-box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-button {
-padding: 10px 20px;
-margin: 10px;
-border: none;
-border-radius: 8px;
-background: blue;
-color: white;
-}
-
-input {
-padding: 10px;
-width: 80%;
-margin: 5px;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <h1>🔥 Application de Vote</h1>
 
-<!-- 🔐 AUTH -->
 <div class="card">
 <h2>Connexion</h2>
 <input id="email" placeholder="Email"><br>
@@ -50,7 +19,6 @@ margin: 5px;
 <button onclick="login()">Se connecter</button>
 </div>
 
-<!-- 🗳️ APP -->
 <div class="card" id="app" style="display:none;">
 <h2>Qui est le meilleur ?</h2>
 
@@ -60,121 +28,7 @@ margin: 5px;
 <p id="result">Chargement...</p>
 </div>
 
-<script type="module">
-
-// 🔥 IMPORT FIREBASE
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-// 🔑 TA CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyBvVeNIygIE6GNtuMrhJabmO3ffL3Fz6WA",
-  authDomain: "vote-app-cfdf3.firebaseapp.com",
-  projectId: "vote-app-cfdf3",
-  storageBucket: "vote-app-cfdf3.firebasestorage.app",
-  messagingSenderId: "1069813496162",
-  appId: "1:1069813496162:web:c3f839104237cdc395143b"
-};
-
-// 🚀 INITIALISATION
-const appFirebase = initializeApp(firebaseConfig);
-const db = getFirestore(appFirebase);
-const auth = getAuth(appFirebase);
-
-// 👤 INSCRIPTION
-window.register = async function(){
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    alert("Compte créé !");
-  } catch(e){
-    alert(e.message);
-  }
-}
-
-// 🔐 CONNEXION
-window.login = async function(){
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    alert("Connecté !");
-  } catch(e){
-    alert(e.message);
-  }
-}
-
-// 🔄 SURVEILLER CONNEXION
-onAuthStateChanged(auth, (user) => {
-  if(user){
-    document.getElementById("app").style.display = "block";
-    loadVotes();
-  }
-});
-
-// 📊 CHARGER VOTES
-async function loadVotes() {
-  const ref = doc(db, "votes", "global");
-  const snap = await getDoc(ref);
-
-  if (snap.exists()) {
-    const data = snap.data();
-    document.getElementById("result").innerText =
-      "Votes: A = " + data.A + " | B = " + data.B;
-  } else {
-    await setDoc(ref, { A: 0, B: 0 });
-  }
-}
-
-// 🗳️ VOTER
-window.vote = async function(option) {
-
-  const user = auth.currentUser;
-  if(!user){
-    alert("Connecte-toi !");
-    return;
-  }
-
-  const voteRef = doc(db, "votes", "global");
-  const userVoteRef = doc(db, "userVotes", user.uid);
-
-  // 🔍 Vérifier si l'utilisateur a déjà voté
-  const userVoteSnap = await getDoc(userVoteRef);
-
-  if(userVoteSnap.exists()){
-    alert("Tu as déjà voté !");
-    return;
-  }
-
-  // 📊 récupérer les votes globaux
-  const voteSnap = await getDoc(voteRef);
-  let data = voteSnap.data();
-
-  // ➕ ajouter vote
-  if(option === 'A'){
-    data.A++;
-  } else {
-    data.B++;
-  }
-
-  // 💾 sauvegarder
-  await updateDoc(voteRef, data);
-
-  // 💾 enregistrer que l'utilisateur a voté
-  await setDoc(userVoteRef, {
-    userId: user.uid,
-    choice: option
-  });
-
-  alert("Vote enregistré !");
-  loadVotes();
-}
-</script>
+<script type="module" src="app.js"></script>
 
 </body>
-</html>
+</html> 
