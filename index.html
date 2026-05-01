@@ -133,21 +133,47 @@ async function loadVotes() {
 
 // 🗳️ VOTER
 window.vote = async function(option) {
-  const ref = doc(db, "votes", "global");
-  const snap = await getDoc(ref);
 
-  let data = snap.data();
+  const user = auth.currentUser;
+  if(!user){
+    alert("Connecte-toi !");
+    return;
+  }
 
+  const voteRef = doc(db, "votes", "global");
+  const userVoteRef = doc(db, "userVotes", user.uid);
+
+  // 🔍 Vérifier si l'utilisateur a déjà voté
+  const userVoteSnap = await getDoc(userVoteRef);
+
+  if(userVoteSnap.exists()){
+    alert("Tu as déjà voté !");
+    return;
+  }
+
+  // 📊 récupérer les votes globaux
+  const voteSnap = await getDoc(voteRef);
+  let data = voteSnap.data();
+
+  // ➕ ajouter vote
   if(option === 'A'){
     data.A++;
   } else {
     data.B++;
   }
 
-  await updateDoc(ref, data);
+  // 💾 sauvegarder
+  await updateDoc(voteRef, data);
+
+  // 💾 enregistrer que l'utilisateur a voté
+  await setDoc(userVoteRef, {
+    userId: user.uid,
+    choice: option
+  });
+
+  alert("Vote enregistré !");
   loadVotes();
 }
-
 </script>
 
 </body>
