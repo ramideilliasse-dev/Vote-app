@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -10,6 +10,13 @@
 
 <h1>🔥 Application de Vote</h1>
 
+<!-- 👤 PROFIL -->
+<div class="card" id="profile" style="display:none;">
+<h2>👤 Mon Profil</h2>
+<p id="userEmail"></p>
+<p id="username"></p>
+</div>
+
 <!-- 🔐 AUTH -->
 <div class="card">
 <h2>Connexion</h2>
@@ -20,7 +27,7 @@
 <button onclick="login()">Se connecter</button>
 </div>
 
-<!-- 🗳️ ANCIEN SYSTEME (on garde mais caché après login) -->
+<!-- 🗳️ ANCIEN SYSTEME -->
 <div class="card" id="app" style="display:none;">
 <h2>Qui est le meilleur ?</h2>
 
@@ -47,4 +54,4 @@
 <script type="module" src="app.js"></script>
 
 </body>
-</html> 
+</html>
