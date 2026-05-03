@@ -1,4 +1,4 @@
-import { db, auth } from "./firebase.js";
+ import { db, auth } from "./firebase.js";
 import { 
   doc, getDoc, setDoc, updateDoc, 
   collection, addDoc, getDocs, serverTimestamp 
@@ -15,12 +15,22 @@ import {
 // 🔐 AUTH
 // =====================
 
-// INSCRIPTION
+// INSCRIPTION + PROFIL
 window.register = async function(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  await createUserWithEmailAndPassword(auth, email, password);
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+
+  // 👤 créer profil utilisateur
+  await setDoc(doc(db, "users", user.uid), {
+    uid: user.uid,
+    email: user.email,
+    username: email.split("@")[0],
+    createdAt: serverTimestamp()
+  });
+
   alert("Compte créé !");
 }
 
@@ -40,15 +50,31 @@ window.login = async function(){
 
 onAuthStateChanged(auth, (user) => {
   if(user){
-    // cacher ancien système
     document.getElementById("app").style.display = "none";
-
-    // afficher nouveau système
     document.getElementById("createPost").style.display = "block";
 
+    loadProfile(user);
     loadPosts();
   }
 });
+
+
+// =====================
+// 👤 PROFIL
+// =====================
+
+async function loadProfile(user){
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    const data = snap.data();
+
+    document.getElementById("profile").style.display = "block";
+    document.getElementById("userEmail").innerText = "Email: " + data.email;
+    document.getElementById("username").innerText = "Nom: " + data.username;
+  }
+}
 
 
 // =====================
@@ -67,8 +93,14 @@ window.createPost = async function(){
     return;
   }
 
+  // récupérer username
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+  const userData = userSnap.data();
+
   await addDoc(collection(db, "posts"), {
     userId: user.uid,
+    username: userData.username,
     question,
     optionA,
     optionB,
@@ -83,7 +115,7 @@ window.createPost = async function(){
 
 
 // =====================
-// 📱 LOAD POSTS (FEED)
+// 📱 FEED
 // =====================
 
 async function loadPosts(){
@@ -97,6 +129,7 @@ async function loadPosts(){
 
     html += `
     <div class="card">
+      <h4>👤 ${post.username}</h4>
       <h3>${post.question}</h3>
 
       <button onclick="votePost('${id}','A')">${post.optionA}</button>
@@ -112,7 +145,7 @@ async function loadPosts(){
 
 
 // =====================
-// 🗳️ VOTE SUR POST
+// 🗳️ VOTE PAR POST
 // =====================
 
 window.votePost = async function(postId, choice){
@@ -150,7 +183,6 @@ window.votePost = async function(postId, choice){
 // ⚠️ ANCIEN SYSTEME (ON GARDE)
 // =====================
 
-// LOAD VOTES GLOBAL
 async function loadVotes(){
   const ref = doc(db, "votes", "global");
   const snap = await getDoc(ref);
@@ -164,7 +196,6 @@ async function loadVotes(){
   }
 }
 
-// VOTE GLOBAL (ANTI-TRICHE)
 window.vote = async function(option){
   const user = auth.currentUser;
 
@@ -192,4 +223,4 @@ window.vote = async function(option){
   });
 
   loadVotes();
-} 
+}
