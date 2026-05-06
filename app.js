@@ -1,14 +1,17 @@
  import { db, auth } from "./firebase.js";
 import { 
-  doc, getDoc, setDoc, updateDoc, 
+  doc, getDoc, setDoc, updateDoc, deleteDoc,
   collection, addDoc, getDocs, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+let isAdmin = false;
 
 
 // =====================
@@ -26,6 +29,7 @@ window.register = async function(){
     uid: user.uid,
     email: user.email,
     username: email.split("@")[0],
+    role: "user",
     createdAt: serverTimestamp()
   });
 
@@ -42,15 +46,39 @@ window.login = async function(){
 
 
 // =====================
+// 🚪 LOGOUT
+// =====================
+
+window.logout = async function(){
+  await signOut(auth);
+
+  isAdmin = false;
+
+  document.getElementById("profile").style.display = "none";
+  document.getElementById("createPost").style.display = "none";
+  document.getElementById("feedHeader").style.display = "none";
+  document.getElementById("notifications").style.display = "none";
+  document.getElementById("adminPanel").style.display = "none";
+
+  document.getElementById("authCard").style.display = "block";
+  document.getElementById("feed").innerHTML = "";
+
+  alert("Déconnecté !");
+}
+
+
+// =====================
 // 🔄 SESSION
 // =====================
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if(user){
     document.getElementById("app").style.display = "none";
     document.getElementById("createPost").style.display = "block";
+    document.getElementById("authCard").style.display = "none";
+    document.getElementById("feedHeader").style.display = "block";
 
-    loadProfile(user);
+    await loadProfile(user);
     loadPosts();
     loadNotifications();
   }
@@ -58,7 +86,7 @@ onAuthStateChanged(auth, (user) => {
 
 
 // =====================
-// 👤 PROFIL
+// 👤 PROFIL + ADMIN
 // =====================
 
 async function loadProfile(user){
@@ -71,7 +99,70 @@ async function loadProfile(user){
     document.getElementById("profile").style.display = "block";
     document.getElementById("userEmail").innerText = "Email: " + data.email;
     document.getElementById("username").innerText = "Nom: " + data.username;
+
+    if(data.role === "admin"){
+      isAdmin = true;
+      document.getElementById("adminPanel").style.display = "block";
+      loadUsers();
+    }
   }
+}
+
+
+// =====================
+// 👑 ADMIN PANEL
+// =====================
+
+// supprimer un post
+window.deletePost = async function(postId){
+  if(!isAdmin) return;
+
+  await deleteDoc(doc(db, "posts", postId));
+  alert("Post supprimé");
+  loadPosts();
+}
+
+// supprimer tous les posts
+window.deleteAllPosts = async function(){
+  if(!isAdmin) return;
+
+  const snapshot = await getDocs(collection(db, "posts"));
+
+  for (const docSnap of snapshot.docs){
+    await deleteDoc(doc(db, "posts", docSnap.id));
+  }
+
+  alert("Tous les posts supprimés");
+  loadPosts();
+}
+
+// charger utilisateurs
+async function loadUsers(){
+  const snapshot = await getDocs(collection(db, "users"));
+
+  let html = "";
+
+  snapshot.forEach(docSnap => {
+    const user = docSnap.data();
+
+    html += `
+    <p>
+      👤 ${user.email}
+      <button onclick="deleteUser('${user.uid}')">❌</button>
+    </p>
+    `;
+  });
+
+  document.getElementById("userList").innerHTML = html;
+}
+
+// supprimer utilisateur
+window.deleteUser = async function(uid){
+  if(!isAdmin) return;
+
+  await deleteDoc(doc(db, "users", uid));
+  alert("Utilisateur supprimé");
+  loadUsers();
 }
 
 
@@ -100,11 +191,9 @@ async function loadNotifications(){
     const notif = doc.data();
 
     if(notif.toUserId === user.uid){
-
       if(notif.type === "like"){
         html += `<p>❤️ Quelqu’un a aimé ton post</p>`;
       }
-
       if(notif.type === "follow"){
         html += `<p>👤 Quelqu’un te suit</p>`;
       }
@@ -117,7 +206,7 @@ async function loadNotifications(){
 
 
 // =====================
-// 📝 CRÉER POST + IMAGE
+// 📝 CRÉER POST
 // =====================
 
 window.createPost = async function(){
@@ -126,7 +215,6 @@ window.createPost = async function(){
   const question = document.getElementById("question").value;
   const optionA = document.getElementById("optionA").value;
   const optionB = document.getElementById("optionB").value;
-  const file = document.getElementById("imageFile")?.files[0];
 
   if(!question || !optionA || !optionB){
     alert("Remplis tous les champs !");
@@ -136,28 +224,12 @@ window.createPost = async function(){
   const userSnap = await getDoc(doc(db, "users", user.uid));
   const userData = userSnap.data();
 
-  let imageUrl = "";
-
-  if(file){
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const res = await fetch("https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f", {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await res.json();
-    imageUrl = data.data.url;
-  }
-
   await addDoc(collection(db, "posts"), {
     userId: user.uid,
     username: userData.username,
     question,
     optionA,
     optionB,
-    imageUrl,
     votesA: 0,
     votesB: 0,
     createdAt: serverTimestamp()
@@ -169,51 +241,32 @@ window.createPost = async function(){
 
 
 // =====================
-// 📱 FEED + ALGORITHME + PARTAGE
+// 📱 FEED + ADMIN BUTTON
 // =====================
 
 async function loadPosts(){
   const snapshot = await getDocs(collection(db, "posts"));
 
-  let posts = [];
+  let html = "";
 
-  for (const docSnap of snapshot.docs){
+  snapshot.forEach(docSnap => {
     const post = docSnap.data();
     const id = docSnap.id;
 
-    const score = (post.votesA || 0) + (post.votesB || 0);
-
-    posts.push({
-      id,
-      ...post,
-      score
-    });
-  }
-
-  posts.sort((a, b) => {
-    if(b.score === a.score){
-      return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
-    }
-    return b.score - a.score;
-  });
-
-  let html = "";
-
-  posts.forEach(post => {
     html += `
     <div class="card">
       <h4>👤 ${post.username}</h4>
       <h3>${post.question}</h3>
 
-      ${post.imageUrl ? `<img src="${post.imageUrl}" style="width:100%;border-radius:10px;margin:10px 0;">` : ""}
+      <button onclick="votePost('${id}','A')">${post.optionA}</button>
+      <button onclick="votePost('${id}','B')">${post.optionB}</button>
 
-      <button onclick="votePost('${post.id}','A')">${post.optionA}</button>
-      <button onclick="votePost('${post.id}','B')">${post.optionB}</button>
+      <p>Votes: A=${post.votesA} | B=${post.votesB}</p>
 
-      <p>🔥 Score: ${post.score}</p>
+      <button onclick="likePost('${id}')">❤️</button>
+      <button onclick="sharePost('${id}')">📤</button>
 
-      <button onclick="likePost('${post.id}')">❤️ Like</button>
-      <button onclick="sharePost('${post.id}')">📤 Partager</button>
+      ${isAdmin ? `<button onclick="deletePost('${id}')">🗑️</button>` : ""}
     </div>
     `;
   });
@@ -223,33 +276,19 @@ async function loadPosts(){
 
 
 // =====================
-// 📤 PARTAGE (AMÉLIORÉ)
+// 📤 PARTAGE
 // =====================
 
 window.sharePost = async function(postId){
   const url = window.location.origin + "?post=" + postId;
 
-  // 🔥 partage natif (mobile)
-  if(navigator.share){
-    try{
-      await navigator.share({
-        title: "Vote App 🔥",
-        text: "Viens voter sur ce post !",
-        url: url
-      });
-    } catch(e){
-      console.log("Partage annulé");
-    }
-  } else {
-    // fallback copie
-    await navigator.clipboard.writeText(url);
-    alert("Lien copié ! Partage à tes amis 🔥");
-  }
+  await navigator.clipboard.writeText(url);
+  alert("Lien copié !");
 }
 
 
 // =====================
-// ❤️ LIKE + NOTIFICATION
+// ❤️ LIKE
 // =====================
 
 window.likePost = async function(postId){
@@ -266,7 +305,7 @@ window.likePost = async function(postId){
 
 
 // =====================
-// 🗳️ VOTE PAR POST
+// 🗳️ VOTE
 // =====================
 
 window.votePost = async function(postId, choice){
@@ -276,7 +315,7 @@ window.votePost = async function(postId, choice){
   const voteSnap = await getDoc(voteRef);
 
   if(voteSnap.exists()){
-    alert("Tu as déjà voté !");
+    alert("Déjà voté !");
     return;
   }
 
@@ -297,51 +336,4 @@ window.votePost = async function(postId, choice){
   });
 
   loadPosts();
-}
-
-
-// =====================
-// ⚠️ ANCIEN SYSTEME
-// =====================
-
-async function loadVotes(){
-  const ref = doc(db, "votes", "global");
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-    const data = snap.data();
-    document.getElementById("result").innerText =
-      "Votes: A = " + data.A + " | B = " + data.B;
-  } else {
-    await setDoc(ref, {A:0, B:0});
-  }
-}
-
-window.vote = async function(option){
-  const user = auth.currentUser;
-
-  const voteRef = doc(db, "votes", "global");
-  const userVoteRef = doc(db, "userVotes", user.uid);
-
-  const userVoteSnap = await getDoc(userVoteRef);
-
-  if(userVoteSnap.exists()){
-    alert("Tu as déjà voté !");
-    return;
-  }
-
-  const voteSnap = await getDoc(voteRef);
-  let data = voteSnap.data();
-
-  if(option === "A") data.A++;
-  else data.B++;
-
-  await updateDoc(voteRef, data);
-
-  await setDoc(userVoteRef, {
-    userId: user.uid,
-    choice: option
-  });
-
-  loadVotes();
 }
