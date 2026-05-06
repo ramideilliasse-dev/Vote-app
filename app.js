@@ -117,7 +117,7 @@ async function loadNotifications(){
 
 
 // =====================
-// 📝 CRÉER POST + IMAGE (ImgBB)
+// 📝 CRÉER POST + IMAGE
 // =====================
 
 window.createPost = async function(){
@@ -138,7 +138,6 @@ window.createPost = async function(){
 
   let imageUrl = "";
 
-  // 🔥 Upload ImgBB
   if(file){
     const formData = new FormData();
     formData.append("image", file);
@@ -170,18 +169,37 @@ window.createPost = async function(){
 
 
 // =====================
-// 📱 FEED
+// 📱 FEED + ALGORITHME + PARTAGE
 // =====================
 
 async function loadPosts(){
-  const querySnapshot = await getDocs(collection(db, "posts"));
+  const snapshot = await getDocs(collection(db, "posts"));
 
-  let html = "";
+  let posts = [];
 
-  querySnapshot.forEach((docSnap) => {
+  for (const docSnap of snapshot.docs){
     const post = docSnap.data();
     const id = docSnap.id;
 
+    const score = (post.votesA || 0) + (post.votesB || 0);
+
+    posts.push({
+      id,
+      ...post,
+      score
+    });
+  }
+
+  posts.sort((a, b) => {
+    if(b.score === a.score){
+      return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+    }
+    return b.score - a.score;
+  });
+
+  let html = "";
+
+  posts.forEach(post => {
     html += `
     <div class="card">
       <h4>👤 ${post.username}</h4>
@@ -189,17 +207,44 @@ async function loadPosts(){
 
       ${post.imageUrl ? `<img src="${post.imageUrl}" style="width:100%;border-radius:10px;margin:10px 0;">` : ""}
 
-      <button onclick="votePost('${id}','A')">${post.optionA}</button>
-      <button onclick="votePost('${id}','B')">${post.optionB}</button>
+      <button onclick="votePost('${post.id}','A')">${post.optionA}</button>
+      <button onclick="votePost('${post.id}','B')">${post.optionB}</button>
 
-      <p>Votes: A = ${post.votesA} | B = ${post.votesB}</p>
+      <p>🔥 Score: ${post.score}</p>
 
-      <button onclick="likePost('${id}')">❤️ Like</button>
+      <button onclick="likePost('${post.id}')">❤️ Like</button>
+      <button onclick="sharePost('${post.id}')">📤 Partager</button>
     </div>
     `;
   });
 
   document.getElementById("feed").innerHTML = html;
+}
+
+
+// =====================
+// 📤 PARTAGE (AMÉLIORÉ)
+// =====================
+
+window.sharePost = async function(postId){
+  const url = window.location.origin + "?post=" + postId;
+
+  // 🔥 partage natif (mobile)
+  if(navigator.share){
+    try{
+      await navigator.share({
+        title: "Vote App 🔥",
+        text: "Viens voter sur ce post !",
+        url: url
+      });
+    } catch(e){
+      console.log("Partage annulé");
+    }
+  } else {
+    // fallback copie
+    await navigator.clipboard.writeText(url);
+    alert("Lien copié ! Partage à tes amis 🔥");
+  }
 }
 
 
