@@ -15,7 +15,6 @@ import {
 // 🔐 AUTH
 // =====================
 
-// INSCRIPTION + PROFIL
 window.register = async function(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -23,7 +22,6 @@ window.register = async function(){
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
 
-  // 👤 créer profil utilisateur
   await setDoc(doc(db, "users", user.uid), {
     uid: user.uid,
     email: user.email,
@@ -34,7 +32,6 @@ window.register = async function(){
   alert("Compte créé !");
 }
 
-// CONNEXION
 window.login = async function(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -55,6 +52,7 @@ onAuthStateChanged(auth, (user) => {
 
     loadProfile(user);
     loadPosts();
+    loadNotifications();
   }
 });
 
@@ -78,7 +76,48 @@ async function loadProfile(user){
 
 
 // =====================
-// 📝 CRÉER POST
+// 🔔 NOTIFICATIONS
+// =====================
+
+async function addNotification(toUserId, fromUserId, type){
+  if(toUserId === fromUserId) return;
+
+  await addDoc(collection(db, "notifications"), {
+    toUserId,
+    fromUserId,
+    type,
+    createdAt: serverTimestamp()
+  });
+}
+
+async function loadNotifications(){
+  const user = auth.currentUser;
+  const snapshot = await getDocs(collection(db, "notifications"));
+
+  let html = "";
+
+  snapshot.forEach(doc => {
+    const notif = doc.data();
+
+    if(notif.toUserId === user.uid){
+
+      if(notif.type === "like"){
+        html += `<p>❤️ Quelqu’un a aimé ton post</p>`;
+      }
+
+      if(notif.type === "follow"){
+        html += `<p>👤 Quelqu’un te suit</p>`;
+      }
+    }
+  });
+
+  document.getElementById("notifications").style.display = "block";
+  document.getElementById("notifList").innerHTML = html;
+}
+
+
+// =====================
+// 📝 CRÉER POST + IMAGE (ImgBB)
 // =====================
 
 window.createPost = async function(){
@@ -87,16 +126,31 @@ window.createPost = async function(){
   const question = document.getElementById("question").value;
   const optionA = document.getElementById("optionA").value;
   const optionB = document.getElementById("optionB").value;
+  const file = document.getElementById("imageFile")?.files[0];
 
   if(!question || !optionA || !optionB){
     alert("Remplis tous les champs !");
     return;
   }
 
-  // récupérer username
-  const userRef = doc(db, "users", user.uid);
-  const userSnap = await getDoc(userRef);
+  const userSnap = await getDoc(doc(db, "users", user.uid));
   const userData = userSnap.data();
+
+  let imageUrl = "";
+
+  // 🔥 Upload ImgBB
+  if(file){
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch("https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    imageUrl = data.data.url;
+  }
 
   await addDoc(collection(db, "posts"), {
     userId: user.uid,
@@ -104,6 +158,7 @@ window.createPost = async function(){
     question,
     optionA,
     optionB,
+    imageUrl,
     votesA: 0,
     votesB: 0,
     createdAt: serverTimestamp()
@@ -132,15 +187,36 @@ async function loadPosts(){
       <h4>👤 ${post.username}</h4>
       <h3>${post.question}</h3>
 
+      ${post.imageUrl ? `<img src="${post.imageUrl}" style="width:100%;border-radius:10px;margin:10px 0;">` : ""}
+
       <button onclick="votePost('${id}','A')">${post.optionA}</button>
       <button onclick="votePost('${id}','B')">${post.optionB}</button>
 
       <p>Votes: A = ${post.votesA} | B = ${post.votesB}</p>
+
+      <button onclick="likePost('${id}')">❤️ Like</button>
     </div>
     `;
   });
 
   document.getElementById("feed").innerHTML = html;
+}
+
+
+// =====================
+// ❤️ LIKE + NOTIFICATION
+// =====================
+
+window.likePost = async function(postId){
+  const user = auth.currentUser;
+
+  const postRef = doc(db, "posts", postId);
+  const postSnap = await getDoc(postRef);
+  const postData = postSnap.data();
+
+  await addNotification(postData.userId, user.uid, "like");
+
+  alert("❤️ Liké !");
 }
 
 
@@ -180,7 +256,7 @@ window.votePost = async function(postId, choice){
 
 
 // =====================
-// ⚠️ ANCIEN SYSTEME (ON GARDE)
+// ⚠️ ANCIEN SYSTEME
 // =====================
 
 async function loadVotes(){
