@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vote App</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -21,10 +22,13 @@
 <h2>👤 Mon Profil</h2>
 <p id="userEmail"></p>
 <p id="username"></p>
+
+<!-- 🚪 LOGOUT -->
+<button onclick="logout()">Se déconnecter</button>
 </div>
 
 <!-- 🔐 AUTH -->
-<div class="card">
+<div class="card" id="authCard">
 <h2>Connexion</h2>
 <input id="email" placeholder="Email"><br>
 <input id="password" type="password" placeholder="Mot de passe"><br>
@@ -52,9 +56,15 @@
 <input id="optionB" placeholder="Option B"><br>
 
 <!-- 📸 IMAGE -->
-<input type="file" id="imageFile"><br>
+<input type="file" id="imageFile"><br><br>
 
 <button onclick="createPost()">Publier</button>
+</div>
+
+<!-- 📱 FEED HEADER -->
+<div class="card" id="feedHeader" style="display:none;">
+<h2>🔥 Votes populaires</h2>
+<button onclick="refreshFeed()">🔄 Rafraîchir</button>
 </div>
 
 <!-- 🆕 FEED -->
