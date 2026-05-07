@@ -1,0 +1,247 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Profil Utilisateur</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+  margin:0;
+  background:#071226;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+/* COVER */
+.cover{
+  width:100%;
+  height:220px;
+  background-size:cover;
+  background-position:center;
+  position:relative;
+}
+
+/* PROFILE IMAGE */
+.profile-image{
+  width:130px;
+  height:130px;
+  border-radius:50%;
+  border:5px solid #071226;
+  object-fit:cover;
+  position:absolute;
+  bottom:-60px;
+  left:25px;
+  background:#13213d;
+}
+
+/* PROFILE CARD */
+.profile-info{
+  margin-top:80px;
+  padding:20px;
+}
+
+.username{
+  font-size:28px;
+  font-weight:bold;
+}
+
+.bio{
+  margin-top:10px;
+  color:#c9d4e7;
+}
+
+/* STATS */
+.stats{
+  display:flex;
+  gap:20px;
+  margin-top:20px;
+  flex-wrap:wrap;
+}
+
+.stat-box{
+  background:#13213d;
+  padding:15px;
+  border-radius:20px;
+  min-width:100px;
+  text-align:center;
+}
+
+/* BUTTONS */
+button{
+  padding:14px 20px;
+  border:none;
+  border-radius:15px;
+  background:#ff4747;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:15px;
+}
+
+button:hover{
+  opacity:0.9;
+}
+
+/* POSTS */
+.posts-title{
+  padding:20px;
+  font-size:24px;
+  font-weight:bold;
+}
+
+/* GRID */
+.posts-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+  padding:20px;
+}
+
+/* POST CARD */
+.post-card{
+  background:#13213d;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.post-card img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+}
+
+.post-content{
+  padding:15px;
+}
+
+.post-question{
+  font-size:18px;
+  font-weight:bold;
+}
+
+.score{
+  margin-top:10px;
+  color:#ff4747;
+  font-weight:bold;
+}
+
+/* EDIT */
+.edit-box{
+  background:#13213d;
+  margin:20px;
+  padding:20px;
+  border-radius:20px;
+}
+
+input, textarea{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:15px;
+  background:#243552;
+  color:white;
+  margin-top:10px;
+  box-sizing:border-box;
+}
+
+textarea{
+  min-height:100px;
+  resize:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- COVER -->
+<div class="cover" id="cover"
+style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1600');">
+
+<img 
+id="profileImage"
+class="profile-image"
+src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800">
+
+</div>
+
+<!-- PROFILE INFO -->
+<div class="profile-info">
+
+<div class="username" id="profileUsername">
+@username
+</div>
+
+<div class="bio" id="profileBio">
+Aucune bio
+</div>
+
+<!-- STATS -->
+<div class="stats">
+
+<div class="stat-box">
+<h3 id="postsCount">0</h3>
+<p>Posts</p>
+</div>
+
+<div class="stat-box">
+<h3 id="likesCount">0</h3>
+<p>Likes</p>
+</div>
+
+<div class="stat-box">
+<h3 id="votesCount">0</h3>
+<p>Votes</p>
+</div>
+
+</div>
+
+<!-- FOLLOW -->
+<button id="followBtn">
+👥 Suivre
+</button>
+
+</div>
+
+<!-- EDIT PROFILE -->
+<div class="edit-box">
+
+<h2>⚙️ Modifier profil</h2>
+
+<input 
+type="text" 
+id="newProfileImage"
+placeholder="Lien image profil">
+
+<input 
+type="text" 
+id="newCoverImage"
+placeholder="Lien photo couverture">
+
+<textarea 
+id="newBio"
+placeholder="Ta bio..."></textarea>
+
+<button onclick="saveProfile()">
+💾 Enregistrer
+</button>
+
+</div>
+
+<!-- POSTS -->
+<div class="posts-title">
+🔥 Publications
+</div>
+
+<div class="posts-grid" id="userPosts"></div>
+
+<script type="module" src="profile.js"></script>
+
+</body>
+</html>
