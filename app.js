@@ -23,7 +23,6 @@ import {
 
 let isAdmin = false;
 
-
 // =====================
 // 🔐 AUTH
 // =====================
@@ -87,7 +86,6 @@ window.register = async function () {
   }
 };
 
-
 window.login = async function () {
 
   try{
@@ -111,7 +109,6 @@ window.login = async function () {
   }
 };
 
-
 // =====================
 // 🚪 LOGOUT
 // =====================
@@ -123,12 +120,6 @@ window.logout = async function () {
   isAdmin = false;
 
   document.getElementById("profile").style.display =
-    "none";
-
-  document.getElementById("createPost").style.display =
-    "none";
-
-  document.getElementById("feedHeader").style.display =
     "none";
 
   document.getElementById("notifications").style.display =
@@ -147,7 +138,6 @@ window.logout = async function () {
   alert("Déconnecté !");
 };
 
-
 // =====================
 // 🔄 SESSION
 // =====================
@@ -160,13 +150,7 @@ onAuthStateChanged(auth, async (user) => {
       "none";
 
     document.getElementById("profile").style.display =
-      "block";
-
-    document.getElementById("createPost").style.display =
-      "block";
-
-    document.getElementById("feedHeader").style.display =
-      "block";
+      "flex";
 
     document.getElementById("notifications").style.display =
       "block";
@@ -185,12 +169,6 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("profile").style.display =
       "none";
 
-    document.getElementById("createPost").style.display =
-      "none";
-
-    document.getElementById("feedHeader").style.display =
-      "none";
-
     document.getElementById("notifications").style.display =
       "none";
 
@@ -198,7 +176,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 
 });
-
 
 // =====================
 // 👤 PROFIL
@@ -214,13 +191,6 @@ async function loadProfile(user){
 
     const data = snap.data();
 
-    document.getElementById("userEmail").innerText =
-      "Email : " + data.email;
-
-    document.getElementById("username").innerText =
-      "Nom : " + data.username;
-
-    // PHOTO PROFIL
     if(document.getElementById("myProfileImage")){
 
       document.getElementById("myProfileImage").src =
@@ -228,7 +198,12 @@ async function loadProfile(user){
         "https://cdn-icons-png.flaticon.com/512/149/149071.png";
     }
 
-    // ADMIN
+    if(document.getElementById("topUsername")){
+
+      document.getElementById("topUsername").innerText =
+        data.username;
+    }
+
     if(data.role === "admin"){
 
       isAdmin = true;
@@ -241,6 +216,37 @@ async function loadProfile(user){
   }
 }
 
+// =====================
+// 📸 UPLOAD IMAGE
+// =====================
+
+async function uploadImage(file){
+
+  if(!file) return "";
+
+  if(file.size > 5000000){
+
+    alert("Image trop lourde");
+
+    return "";
+  }
+
+  const formData = new FormData();
+
+  formData.append("image", file);
+
+  const res = await fetch(
+    "https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f",
+    {
+      method: "POST",
+      body: formData
+    }
+  );
+
+  const data = await res.json();
+
+  return data.data.url;
+}
 
 // =====================
 // 👑 ADMIN
@@ -255,34 +261,8 @@ window.deletePost = async function(postId){
 
   await deleteDoc(doc(db, "posts", postId));
 
-  alert("Post supprimé");
-
   loadPosts();
 };
-
-
-window.deleteAllPosts = async function(){
-
-  if(!isAdmin){
-    alert("Accès refusé");
-    return;
-  }
-
-  const snapshot =
-    await getDocs(collection(db, "posts"));
-
-  for(const docSnap of snapshot.docs){
-
-    await deleteDoc(
-      doc(db, "posts", docSnap.id)
-    );
-  }
-
-  alert("Tous les posts supprimés");
-
-  loadPosts();
-};
-
 
 async function loadUsers(){
 
@@ -299,116 +279,29 @@ async function loadUsers(){
 
     html += `
 
-      <div style="
-        margin-bottom:15px;
-        background:#1b2d4d;
-        padding:15px;
-        border-radius:15px;
-      ">
+      <div class="admin-user">
 
-        <div style="
-          display:flex;
-          align-items:center;
-          gap:10px;
-        ">
+        <img
+          src="${
+            user.profileImage ||
+            'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+          }"
+          class="admin-user-image"
+        >
 
-          <img
-            src="${
-              user.profileImage ||
-              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-            }"
-
-            style="
-              width:50px;
-              height:50px;
-              border-radius:50%;
-              object-fit:cover;
-            "
-          >
-
-          <div>
-            <div>${user.username}</div>
-            <small>${user.email}</small>
-          </div>
-
+        <div>
+          <div>${user.username}</div>
+          <small>${user.email}</small>
         </div>
 
-        <button onclick="banUser('${user.uid}')">
-          🚫 Bannir
-        </button>
-
-        <button onclick="makeAdmin('${user.uid}')">
-          👑 Admin
-        </button>
-
-        <button onclick="deleteUser('${user.uid}')">
-          🗑️ Supprimer
-        </button>
-
       </div>
+
     `;
   });
 
   document.getElementById("userList").innerHTML =
     html;
 }
-
-
-window.banUser = async function(uid){
-
-  if(!isAdmin) return;
-
-  await updateDoc(doc(db, "users", uid), {
-    banned: true
-  });
-
-  alert("Utilisateur banni");
-
-  loadUsers();
-};
-
-
-window.makeAdmin = async function(uid){
-
-  if(!isAdmin) return;
-
-  await updateDoc(doc(db, "users", uid), {
-    role: "admin"
-  });
-
-  alert("Utilisateur devenu admin");
-
-  loadUsers();
-};
-
-
-window.deleteUser = async function(uid){
-
-  if(!isAdmin) return;
-
-  await deleteDoc(doc(db, "users", uid));
-
-  const postsQuery = query(
-    collection(db, "posts"),
-    where("userId", "==", uid)
-  );
-
-  const postsSnap = await getDocs(postsQuery);
-
-  for(const postDoc of postsSnap.docs){
-
-    await deleteDoc(
-      doc(db, "posts", postDoc.id)
-    );
-  }
-
-  alert("Utilisateur supprimé");
-
-  loadUsers();
-
-  loadPosts();
-};
-
 
 // =====================
 // 🔔 NOTIFICATIONS
@@ -433,7 +326,6 @@ async function addNotification(
   );
 }
 
-
 async function loadNotifications(){
 
   const user = auth.currentUser;
@@ -457,8 +349,8 @@ async function loadNotifications(){
         html += `<p>🗳️ Nouveau vote sur ton post</p>`;
       }
 
-      if(notif.type === "follow"){
-        html += `<p>👥 Nouveau follower</p>`;
+      if(notif.type === "comment"){
+        html += `<p>💬 Nouveau commentaire</p>`;
       }
     }
   });
@@ -467,148 +359,8 @@ async function loadNotifications(){
     html || "<p>Aucune notification</p>";
 }
 
-
 // =====================
-// 📸 UPLOAD IMAGE
-// =====================
-
-async function uploadImage(file){
-
-  if(!file) return "";
-
-  if(file.size > 5000000){
-    alert("Image trop lourde");
-    return "";
-  }
-
-  const formData = new FormData();
-
-  formData.append("image", file);
-
-  const res = await fetch(
-    "https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f",
-    {
-      method: "POST",
-      body: formData
-    }
-  );
-
-  const data = await res.json();
-
-  return data.data.url;
-}
-
-
-// =====================
-// 📝 CREATE POST
-// =====================
-
-window.createPost = async function(){
-
-  try{
-
-    const user = auth.currentUser;
-
-    if(!user){
-      alert("Connecte-toi");
-      return;
-    }
-
-    const question =
-      document.getElementById("question").value.trim();
-
-    const total =
-      parseInt(document.getElementById("totalOptions").value);
-
-    if(!question){
-      alert("Écris une question");
-      return;
-    }
-
-    const userSnap =
-      await getDoc(doc(db, "users", user.uid));
-
-    const userData = userSnap.data();
-
-    let options = [];
-
-    const letters = ["A","B","C","D","E","F"];
-
-    for(let i = 0; i < total; i++){
-
-      const letter = letters[i];
-
-      const text =
-        document.getElementById("option" + letter).value.trim();
-
-      const file =
-        document.getElementById("image" + letter).files[0];
-
-      if(!text){
-        alert("Remplis toutes les options");
-        return;
-      }
-
-      let imageUrl = "";
-
-      if(file){
-        imageUrl = await uploadImage(file);
-      }
-
-      options.push({
-        text,
-        imageUrl,
-        votes: 0
-      });
-    }
-
-    await addDoc(collection(db, "posts"), {
-
-      userId: user.uid,
-
-      username: userData.username,
-
-      profileImage:
-        userData.profileImage || "",
-
-      question,
-
-      options,
-
-      likes: 0,
-
-      createdAt: serverTimestamp()
-    });
-
-    document.getElementById("question").value = "";
-
-    letters.forEach((letter) => {
-
-      const optionInput =
-        document.getElementById("option" + letter);
-
-      const imageInput =
-        document.getElementById("image" + letter);
-
-      if(optionInput) optionInput.value = "";
-
-      if(imageInput) imageInput.value = "";
-    });
-
-    alert("Post publié 🔥");
-
-    loadPosts();
-
-  } catch(error){
-
-    alert(error.message);
-
-  }
-};
-
-
-// =====================
-// 📱 FEED MODERNE
+// 📱 FEED FACEBOOK STYLE
 // =====================
 
 async function loadPosts(){
@@ -629,8 +381,10 @@ async function loadPosts(){
   }
 
   posts.sort((a,b) => {
+
     return (b.createdAt?.seconds || 0)
     - (a.createdAt?.seconds || 0);
+
   });
 
   let html = "";
@@ -639,52 +393,52 @@ async function loadPosts(){
 
     html += `
 
-    <div class="post-card">
+    <div class="fb-post">
 
       <!-- HEADER -->
-      <div class="post-header">
+      <div class="fb-header">
 
-        ${
-          post.profileImage
-          ?
-          `
+        <div class="fb-user-info">
+
           <img
-            src="${post.profileImage}"
-            class="profile-photo"
+            src="${
+              post.profileImage ||
+              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+            }"
+            class="fb-profile"
             onclick="openUserProfile('${post.userId}')"
           >
-          `
-          :
-          `
-          <div
-          class="avatar"
-          onclick="openUserProfile('${post.userId}')">
 
-            ${post.username.charAt(0).toUpperCase()}
+          <div>
+
+            <div
+            class="fb-username"
+            onclick="openUserProfile('${post.userId}')">
+
+              ${post.username}
+
+            </div>
+
+            <div class="fb-time">
+              Publication
+            </div>
 
           </div>
-          `
-        }
-
-        <div
-        class="username"
-        onclick="openUserProfile('${post.userId}')">
-
-          ${post.username}
 
         </div>
 
       </div>
 
       <!-- QUESTION -->
-      <div class="post-question">
+      <div class="fb-question">
 
         ${post.question}
 
       </div>
 
       <!-- OPTIONS -->
-      <div class="options-grid">
+      <div class="fb-options">
+
     `;
 
     if(post.options){
@@ -693,60 +447,38 @@ async function loadPosts(){
 
         html += `
 
-        <div class="option-card">
+        <div class="fb-option-card">
 
           ${
             option.imageUrl
             ?
             `
             <img
-            src="${option.imageUrl}"
-            style="
-            width:100%;
-            height:220px;
-            object-fit:cover;
-            ">
+              src="${option.imageUrl}"
+              class="fb-option-image"
+            >
             `
             :
             `
-            <div style="
-            height:220px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:#243552;
-            font-size:20px;
-            ">
+            <div class="fb-empty-image">
               🖼️
             </div>
             `
           }
 
-          <div class="option-name">
-
+          <div class="fb-option-name">
             ${option.text}
-
           </div>
 
           <button
-          onclick="voteOption('${post.id}', ${index})"
-          style="
-          width:100%;
-          border-radius:0;
-          margin:0;
-          ">
-
-            🗳️ VOTER
-
+            class="vote-btn"
+            onclick="voteOption('${post.id}', ${index})"
+          >
+            🗳️ Voter
           </button>
 
-          <div style="
-          padding:10px;
-          text-align:center;
-          font-weight:bold;">
-
+          <div class="vote-count">
             ${option.votes || 0} votes
-
           </div>
 
         </div>
@@ -760,32 +492,62 @@ async function loadPosts(){
 
       </div>
 
+      <!-- LINE -->
+      <div class="fb-line"></div>
+
       <!-- ACTIONS -->
-      <div class="post-actions">
+      <div class="fb-actions">
 
-        <button onclick="likePost('${post.id}')">
-          ❤️ ${post.likes || 0}
+        <button
+        class="fb-action-btn"
+        onclick="likePost('${post.id}')">
+
+          👍 J’aime (${post.likes || 0})
+
         </button>
 
-        <button onclick="sharePost('${post.id}')">
+        <button
+        class="fb-action-btn"
+        onclick="toggleComments('${post.id}')">
+
+          💬 Commenter
+
+        </button>
+
+        <button
+        class="fb-action-btn"
+        onclick="sharePost('${post.id}')">
+
           📤 Partager
+
         </button>
 
-        ${
-          isAdmin
-          ?
-          `
-          <button
-          onclick="deletePost('${post.id}')"
-          class="admin-btn">
+      </div>
 
-            🗑️
+      <!-- COMMENTS -->
+      <div
+      class="comments-section"
+      id="comments-${post.id}"
+      style="display:none;">
+
+        <div id="commentsList-${post.id}"></div>
+
+        <div class="comment-box">
+
+          <input
+            type="text"
+            id="commentInput-${post.id}"
+            placeholder="Écrire un commentaire..."
+          >
+
+          <button
+          onclick="addComment('${post.id}')">
+
+            Envoyer
 
           </button>
-          `
-          :
-          ""
-        }
+
+        </div>
 
       </div>
 
@@ -795,8 +557,134 @@ async function loadPosts(){
   });
 
   document.getElementById("feed").innerHTML = html;
+
+  loadAllComments();
 }
 
+// =====================
+// 💬 COMMENTS
+// =====================
+
+window.toggleComments = function(postId){
+
+  const box =
+    document.getElementById("comments-" + postId);
+
+  if(box.style.display === "none"){
+
+    box.style.display = "block";
+
+  } else {
+
+    box.style.display = "none";
+  }
+};
+
+window.addComment = async function(postId){
+
+  const user = auth.currentUser;
+
+  if(!user){
+
+    alert("Connecte-toi");
+
+    return;
+  }
+
+  const input =
+    document.getElementById("commentInput-" + postId);
+
+  const text = input.value.trim();
+
+  if(!text){
+
+    return;
+  }
+
+  const userSnap =
+    await getDoc(doc(db, "users", user.uid));
+
+  const userData = userSnap.data();
+
+  await addDoc(collection(db, "comments"), {
+
+    postId,
+
+    userId: user.uid,
+
+    username: userData.username,
+
+    profileImage: userData.profileImage || "",
+
+    text,
+
+    createdAt: serverTimestamp()
+  });
+
+  input.value = "";
+
+  loadComments(postId);
+};
+
+async function loadAllComments(){
+
+  const posts =
+    await getDocs(collection(db, "posts"));
+
+  posts.forEach((post) => {
+
+    loadComments(post.id);
+
+  });
+}
+
+async function loadComments(postId){
+
+  const snapshot =
+    await getDocs(collection(db, "comments"));
+
+  let html = "";
+
+  snapshot.forEach((docSnap) => {
+
+    const comment = docSnap.data();
+
+    if(comment.postId === postId){
+
+      html += `
+
+      <div class="comment-item">
+
+        <img
+          src="${
+            comment.profileImage ||
+            'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+          }"
+          class="comment-profile"
+        >
+
+        <div class="comment-content">
+
+          <div class="comment-user">
+            ${comment.username}
+          </div>
+
+          <div class="comment-text">
+            ${comment.text}
+          </div>
+
+        </div>
+
+      </div>
+
+      `;
+    }
+  });
+
+  document.getElementById(
+    "commentsList-" + postId
+  ).innerHTML = html;
+}
 
 // =====================
 // 🗳️ VOTE
@@ -856,11 +744,8 @@ window.voteOption = async function(postId, index){
     "vote"
   );
 
-  alert("Vote enregistré 🔥");
-
   loadPosts();
 };
-
 
 // =====================
 // ❤️ LIKE
@@ -912,7 +797,6 @@ window.likePost = async function(postId){
   loadPosts();
 };
 
-
 // =====================
 // 📤 SHARE
 // =====================
@@ -944,11 +828,18 @@ window.sharePost = async function(postId){
   }
 };
 
-
 // =====================
-// 🔄 REFRESH
+// 👤 OPEN PROFILE
 // =====================
 
-window.refreshFeed = function(){
-  loadPosts();
+window.openUserProfile = function(userId){
+
+  window.location.href =
+    "profile.html?user=" + userId;
+};
+
+window.openMyProfile = function(){
+
+  window.location.href =
+    "profile.html";
 };
