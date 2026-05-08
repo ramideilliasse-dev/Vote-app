@@ -213,7 +213,14 @@ async function loadProfile(user){
       "Email : " + data.email;
 
     document.getElementById("username").innerText =
-      "Nom : " + data.username;
+  "Nom : " + data.username;
+
+// 🖼️ PHOTO PROFIL
+if(data.profileImage){
+
+  document.getElementById("myProfileImage").src =
+    data.profileImage;
+}
 
     // 👤 PHOTO PROFIL
     if(document.getElementById("myProfileImage")){
@@ -679,13 +686,12 @@ window.createPost = async function(){
 
 
 // =====================
-// 📱 FEED
+// 📱 FEED MODERNE
 // =====================
 
 async function loadPosts(){
 
-  const snapshot =
-    await getDocs(collection(db, "posts"));
+  const snapshot = await getDocs(collection(db, "posts"));
 
   let posts = [];
 
@@ -699,126 +705,149 @@ async function loadPosts(){
     });
   }
 
+  // récent en premier
   posts.sort((a,b) => {
-
-    return (
-      (b.likes || 0)
-      -
-      (a.likes || 0)
-    );
+    return (b.createdAt?.seconds || 0)
+    - (a.createdAt?.seconds || 0);
   });
 
   let html = "";
 
   posts.forEach((post) => {
 
-    let optionsHTML = "";
-
-    post.options.forEach((option, index) => {
-
-      optionsHTML += `
-
-        <div
-          class="option-card"
-          onclick="voteOption('${post.id}', ${index})"
-        >
-
-          ${
-            option.image
-            ?
-            `<img src="${option.image}">`
-            :
-            ""
-          }
-
-          <div class="option-name">
-            ${option.text}
-          </div>
-
-          <div class="vs-badge">
-            ${option.votes || 0} votes
-          </div>
-
-        </div>
-      `;
-    });
-
     html += `
 
-      <div class="post-card">
+    <div class="post-card">
 
-        <div class="post-header">
+      <!-- HEADER -->
+      <div class="post-header">
 
+        ${
+          post.profileImage
+          ?
+          `
           <img
-            src="${
-              post.userProfileImage ||
-              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-            }"
-
-            class="avatar"
-
+            src="${post.profileImage}"
+            class="profile-photo"
             onclick="openUserProfile('${post.userId}')"
-
-            style="object-fit:cover;cursor:pointer;"
           >
+          `
+          :
+          `
+          <div
+          class="avatar"
+          onclick="openUserProfile('${post.userId}')">
 
-          <div>
-
-            <div
-              class="username"
-              onclick="openUserProfile('${post.userId}')"
-              style="cursor:pointer;"
-            >
-              ${post.username}
-            </div>
+            ${post.username.charAt(0).toUpperCase()}
 
           </div>
+          `
+        }
 
-        </div>
+        <div
+        class="username"
+        onclick="openUserProfile('${post.userId}')">
 
-        <div class="post-question">
-          ${post.question}
-        </div>
-
-        <div class="options-grid">
-          ${optionsHTML}
-        </div>
-
-        <div class="post-actions">
-
-          <button onclick="likePost('${post.id}')">
-            ❤️ ${post.likes || 0}
-          </button>
-
-          <button onclick="sharePost('${post.id}')">
-            📤 Partager
-          </button>
-
-          ${
-            isAdmin
-            ?
-            `
-            <button
-              class="admin-btn"
-              onclick="deletePost('${post.id}')"
-            >
-              🗑️
-            </button>
-            `
-            :
-            ""
-          }
+          ${post.username}
 
         </div>
 
       </div>
+
+      <!-- QUESTION -->
+      <div class="post-question">
+
+        ${post.question}
+
+      </div>
+
+      <!-- OPTIONS -->
+      <div class="options-grid">
+    `;
+
+    // =====================
+    // MULTI OPTIONS
+    // =====================
+
+    if(post.options){
+
+      post.options.forEach((option, index) => {
+
+        html += `
+
+        <div class="option-card">
+
+          <img src="${option.image}">
+
+          <div class="option-name">
+
+            ${option.name}
+
+          </div>
+
+          <button
+          onclick="voteOption('${post.id}', ${index})">
+
+            🗳️ VOTER
+
+          </button>
+
+          <div style="
+          padding:10px;
+          text-align:center;
+          font-weight:bold;">
+
+            ${option.votes || 0} votes
+
+          </div>
+
+        </div>
+
+        `;
+      });
+
+    }
+
+    html += `
+
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="post-actions">
+
+        <button onclick="likePost('${post.id}')">
+          ❤️ ${post.likes || 0}
+        </button>
+
+        <button onclick="sharePost('${post.id}')">
+          📤 Partager
+        </button>
+
+        ${
+          isAdmin
+          ?
+          `
+          <button
+          onclick="deletePost('${post.id}')"
+          class="admin-btn">
+
+            🗑️
+
+          </button>
+          `
+          :
+          ""
+        }
+
+      </div>
+
+    </div>
+
     `;
   });
 
-  document.getElementById("feed").innerHTML =
-    html;
+  document.getElementById("feed").innerHTML = html;
 }
-
 
 // =====================
 // 🗳️ VOTE OPTIONS
@@ -969,3 +998,60 @@ window.sharePost = async function(postId){
 window.refreshFeed = function(){
   loadPosts();
 };
+// =====================
+// 🗳️ VOTE MULTI OPTIONS
+// =====================
+
+window.voteOption = async function(postId, index){
+
+  const user = auth.currentUser;
+
+  if(!user){
+
+    alert("Connecte-toi");
+
+    return;
+  }
+
+  const voteRef = doc(
+    db,
+    "userVotes",
+    user.uid + "_" + postId
+  );
+
+  const voteSnap = await getDoc(voteRef);
+
+  // anti double vote
+  if(voteSnap.exists()){
+
+    alert("Tu as déjà voté");
+
+    return;
+  }
+
+  const postRef = doc(db, "posts", postId);
+
+  const postSnap = await getDoc(postRef);
+
+  const postData = postSnap.data();
+
+  let options = postData.options;
+
+  options[index].votes =
+    (options[index].votes || 0) + 1;
+
+  await updateDoc(postRef,{
+    options
+  });
+
+  await setDoc(voteRef,{
+    userId:user.uid,
+    postId,
+    option:index,
+    createdAt:serverTimestamp()
+  });
+
+  alert("Vote enregistré 🔥");
+
+  loadPosts();
+}
