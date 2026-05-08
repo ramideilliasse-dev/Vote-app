@@ -208,22 +208,37 @@ Aucune bio
 </button>
 
 </div>
-
-<!-- EDIT PROFILE -->
-<div class="edit-box">
-
-<h2>⚙️ Modifier profil</h2>
+<!-- PHOTO DE PROFIL -->
+<label class="upload-box">
 
 <input 
-type="text" 
-id="newProfileImage"
-placeholder="Lien image profil">
+type="file"
+id="profileImageFile"
+accept="image/*"
+hidden>
+
+<div class="upload-btn">
+📷 Choisir une photo de profil
+</div>
+
+</label>
+
+<!-- PHOTO COUVERTURE -->
+<label class="upload-box">
 
 <input 
-type="text" 
-id="newCoverImage"
-placeholder="Lien photo couverture">
+type="file"
+id="coverImageFile"
+accept="image/*"
+hidden>
 
+<div class="upload-btn">
+🖼️ Choisir une couverture
+</div>
+
+</label>
+
+<!-- BIO -->
 <textarea 
 id="newBio"
 placeholder="Ta bio..."></textarea>
