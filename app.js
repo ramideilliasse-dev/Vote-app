@@ -104,31 +104,36 @@ onAuthStateChanged(auth, async (user) => {
 
   if(user){
 
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-
-    if(!userSnap.exists()){
-      return;
-    }
-
-    const userData = userSnap.data();
-
-    // 🚫 utilisateur banni
-    if(userData.banned === true){
-      await signOut(auth);
-      alert("Compte suspendu");
-      return;
-    }
-
-    document.getElementById("app").style.display = "none";
-    document.getElementById("createPost").style.display = "block";
+    // cacher connexion
     document.getElementById("authCard").style.display = "none";
-    document.getElementById("feedHeader").style.display = "block";
 
+    // afficher app
+    document.getElementById("profile").style.display = "block";
+    document.getElementById("createPost").style.display = "block";
+    document.getElementById("feedHeader").style.display = "block";
+    document.getElementById("notifications").style.display = "block";
+
+    // charger données
     await loadProfile(user);
-    await loadPosts();
-    await loadNotifications();
+
+    loadPosts();
+    loadNotifications();
+
+  } else {
+
+    // afficher connexion
+    document.getElementById("authCard").style.display = "block";
+
+    // cacher app
+    document.getElementById("profile").style.display = "none";
+    document.getElementById("createPost").style.display = "none";
+    document.getElementById("feedHeader").style.display = "none";
+    document.getElementById("notifications").style.display = "none";
+
+    document.getElementById("feed").innerHTML = "";
+
   }
+
 });
 
 
