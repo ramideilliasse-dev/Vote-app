@@ -91,26 +91,40 @@ button:hover{
 .post-header{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:12px;
   padding:15px;
 }
 
+/* 🆕 PHOTO PROFIL */
+.profile-photo{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid #ff4747;
+  cursor:pointer;
+  background:#243552;
+}
+
+/* AVATAR DEFAULT */
 .avatar{
-  width:50px;
-  height:50px;
+  width:60px;
+  height:60px;
   border-radius:50%;
   background:#ff4747;
   display:flex;
   align-items:center;
   justify-content:center;
   font-weight:bold;
-  font-size:20px;
+  font-size:22px;
+  cursor:pointer;
 }
 
 /* USERNAME */
 .username{
   font-size:18px;
   font-weight:bold;
+  cursor:pointer;
 }
 
 /* QUESTION */
@@ -196,6 +210,35 @@ button:hover{
   background:#1d8cff;
 }
 
+/* 🆕 UPLOAD IMAGE STYLE */
+.upload-box{
+  margin-top:15px;
+  background:#243552;
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+  cursor:pointer;
+  border:2px dashed #3d5177;
+}
+
+.upload-box:hover{
+  border-color:#ff4747;
+}
+
+.upload-icon{
+  font-size:45px;
+  margin-bottom:10px;
+}
+
+.upload-text{
+  font-size:17px;
+  color:#dce6ff;
+}
+
+.file-input{
+  display:none;
+}
+
 /* RESPONSIVE */
 @media(max-width:700px){
 
@@ -232,6 +275,22 @@ button:hover{
 
 <p id="userEmail"></p>
 <p id="username"></p>
+
+<!-- 🆕 PHOTO PROFIL -->
+<div style="margin-top:20px;text-align:center;">
+
+<img 
+id="myProfileImage"
+src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+style="
+width:110px;
+height:110px;
+border-radius:50%;
+object-fit:cover;
+border:4px solid #ff4747;
+">
+
+</div>
 
 <button onclick="openMyProfile()" class="profile-btn">
 👤 Voir mon profil
@@ -297,34 +356,72 @@ Se connecter
 
 <!-- OPTION 1 -->
 <input id="optionA" placeholder="Option 1">
-<input type="file" id="imageA">
+
+<label class="upload-box">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text">Choisir image Option 1</div>
+<input type="file" id="imageA" class="file-input" accept="image/*">
+</label>
 
 <!-- OPTION 2 -->
 <input id="optionB" placeholder="Option 2">
-<input type="file" id="imageB">
+
+<label class="upload-box">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text">Choisir image Option 2</div>
+<input type="file" id="imageB" class="file-input" accept="image/*">
+</label>
 
 <!-- OPTION 3 -->
 <div id="option3Box" style="display:none;">
+
 <input id="optionC" placeholder="Option 3">
-<input type="file" id="imageC">
+
+<label class="upload-box">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text">Choisir image Option 3</div>
+<input type="file" id="imageC" class="file-input" accept="image/*">
+</label>
+
 </div>
 
 <!-- OPTION 4 -->
 <div id="option4Box" style="display:none;">
+
 <input id="optionD" placeholder="Option 4">
-<input type="file" id="imageD">
+
+<label class="upload-box">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text">Choisir image Option 4</div>
+<input type="file" id="imageD" class="file-input" accept="image/*">
+</label>
+
 </div>
 
 <!-- OPTION 5 -->
 <div id="option5Box" style="display:none;">
+
 <input id="optionE" placeholder="Option 5">
-<input type="file" id="imageE">
+
+<label class="upload-box">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text">Choisir image Option 5</div>
+<input type="file" id="imageE" class="file-input" accept="image/*">
+</label>
+
 </div>
 
 <!-- OPTION 6 -->
 <div id="option6Box" style="display:none;">
+
 <input id="optionF" placeholder="Option 6">
-<input type="file" id="imageF">
+
+<label class="upload-box">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text">Choisir image Option 6</div>
+<input type="file" id="imageF" class="file-input" accept="image/*">
+</label>
+
 </div>
 
 <button onclick="createPost()">
