@@ -526,127 +526,10 @@ window.createPost = async function(){
       document.getElementById("question").value.trim();
 
     const total =
-      parseInt(
-        document.getElementById("totalOptions").value
-      );
+      parseInt(document.getElementById("totalOptions").value);
 
     if(!question){
-      alert("Question obligatoire");
-      return;
-    }
-
-    let options = [];
-
-    // 🅰️
-    const optionA =
-      document.getElementById("optionA").value.trim();
-
-    const imageA =
-      document.getElementById("imageA").files[0];
-
-    if(optionA){
-
-      options.push({
-        text: optionA,
-        image: await uploadImage(imageA),
-        votes: 0
-      });
-    }
-
-    // 🅱️
-    const optionB =
-      document.getElementById("optionB").value.trim();
-
-    const imageB =
-      document.getElementById("imageB").files[0];
-
-    if(optionB){
-
-      options.push({
-        text: optionB,
-        image: await uploadImage(imageB),
-        votes: 0
-      });
-    }
-
-    // 🅲
-    if(total >= 3){
-
-      const optionC =
-        document.getElementById("optionC").value.trim();
-
-      const imageC =
-        document.getElementById("imageC").files[0];
-
-      if(optionC){
-
-        options.push({
-          text: optionC,
-          image: await uploadImage(imageC),
-          votes: 0
-        });
-      }
-    }
-
-    // 🅳
-    if(total >= 4){
-
-      const optionD =
-        document.getElementById("optionD").value.trim();
-
-      const imageD =
-        document.getElementById("imageD").files[0];
-
-      if(optionD){
-
-        options.push({
-          text: optionD,
-          image: await uploadImage(imageD),
-          votes: 0
-        });
-      }
-    }
-
-    // 🅴
-    if(total >= 5){
-
-      const optionE =
-        document.getElementById("optionE").value.trim();
-
-      const imageE =
-        document.getElementById("imageE").files[0];
-
-      if(optionE){
-
-        options.push({
-          text: optionE,
-          image: await uploadImage(imageE),
-          votes: 0
-        });
-      }
-    }
-
-    // 🅵
-    if(total >= 6){
-
-      const optionF =
-        document.getElementById("optionF").value.trim();
-
-      const imageF =
-        document.getElementById("imageF").files[0];
-
-      if(optionF){
-
-        options.push({
-          text: optionF,
-          image: await uploadImage(imageF),
-          votes: 0
-        });
-      }
-    }
-
-    if(options.length < 2){
-      alert("Minimum 2 choix");
+      alert("Écris une question");
       return;
     }
 
@@ -655,13 +538,77 @@ window.createPost = async function(){
 
     const userData = userSnap.data();
 
+    let options = [];
+
+    // =========================
+    // BOUCLE OPTIONS
+    // =========================
+
+    const letters = ["A","B","C","D","E","F"];
+
+    for(let i = 0; i < total; i++){
+
+      const letter = letters[i];
+
+      const text =
+        document.getElementById("option" + letter).value.trim();
+
+      const file =
+        document.getElementById("image" + letter).files[0];
+
+      if(!text){
+        alert("Remplis toutes les options");
+        return;
+      }
+
+      let imageUrl = "";
+
+      // =========================
+      // UPLOAD IMAGE
+      // =========================
+
+      if(file){
+
+        if(file.size > 5000000){
+          alert("Image trop lourde");
+          return;
+        }
+
+        const formData = new FormData();
+
+        formData.append("image", file);
+
+        const response = await fetch(
+          "https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f",
+          {
+            method: "POST",
+            body: formData
+          }
+        );
+
+        const data = await response.json();
+
+        imageUrl = data.data.url;
+      }
+
+      options.push({
+        text,
+        imageUrl,
+        votes: 0
+      });
+    }
+
+    // =========================
+    // ENREGISTRER POST
+    // =========================
+
     await addDoc(collection(db, "posts"), {
 
       userId: user.uid,
 
       username: userData.username,
 
-      userProfileImage:
+      profileImage:
         userData.profileImage || "",
 
       question,
@@ -670,20 +617,38 @@ window.createPost = async function(){
 
       likes: 0,
 
-      comments: 0,
-
       createdAt: serverTimestamp()
     });
 
-    alert("Post publié 🚀");
+    // =========================
+    // RESET
+    // =========================
+
+    document.getElementById("question").value = "";
+
+    letters.forEach((letter) => {
+
+      const optionInput =
+        document.getElementById("option" + letter);
+
+      const imageInput =
+        document.getElementById("image" + letter);
+
+      if(optionInput) optionInput.value = "";
+
+      if(imageInput) imageInput.value = "";
+    });
+
+    alert("Post publié 🔥");
 
     loadPosts();
 
   } catch(error){
+
     alert(error.message);
+
   }
 };
-
 
 // =====================
 // 📱 FEED MODERNE
