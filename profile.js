@@ -263,45 +263,106 @@ window.followUser = async function(){
 
 };
 
+// =========================
+// 📸 UPLOAD IMAGE
+// =========================
 
-// =====================
+async function uploadImage(file){
+
+  if(!file) return "";
+
+  const formData = new FormData();
+
+  formData.append("image", file);
+
+  const res = await fetch(
+    "https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f",
+    {
+      method:"POST",
+      body:formData
+    }
+  );
+
+  const data = await res.json();
+
+  return data.data.url;
+}
+
+
+// =========================
 // 💾 SAVE PROFILE
-// =====================
+// =========================
 
 window.saveProfile = async function(){
 
-  if(!currentUser){
-    alert("Connecte-toi");
-    return;
+  try{
+
+    const user = auth.currentUser;
+
+    if(!user){
+      alert("Connecte-toi");
+      return;
+    }
+
+    const bio =
+      document.getElementById("newBio").value;
+
+    const profileFile =
+      document.getElementById("profileImageFile").files[0];
+
+    const coverFile =
+      document.getElementById("coverImageFile").files[0];
+
+    let profileImage = "";
+    let coverImage = "";
+
+    // 📷 upload profil
+    if(profileFile){
+      profileImage = await uploadImage(profileFile);
+    }
+
+    // 🖼️ upload couverture
+    if(coverFile){
+      coverImage = await uploadImage(coverFile);
+    }
+
+    let updateData = {
+      bio
+    };
+
+    if(profileImage){
+      updateData.profileImage = profileImage;
+    }
+
+    if(coverImage){
+      updateData.coverImage = coverImage;
+    }
+
+    await updateDoc(
+      doc(db, "users", user.uid),
+      updateData
+    );
+
+    // refresh UI
+    if(profileImage){
+      document.getElementById("profileImage").src =
+        profileImage;
+    }
+
+    if(coverImage){
+      document.getElementById("cover").style.backgroundImage =
+        `url(${coverImage})`;
+    }
+
+    document.getElementById("profileBio").innerText =
+      bio;
+
+    alert("Profil mis à jour ✅");
+
+  } catch(error){
+    alert(error.message);
   }
-
-  if(currentUser.uid !== profileUid){
-    alert("Impossible");
-    return;
-  }
-
-  const photoURL =
-    document.getElementById("newProfileImage").value;
-
-  const coverURL =
-    document.getElementById("newCoverImage").value;
-
-  const bio =
-    document.getElementById("newBio").value;
-
-  const ref = doc(db,"users",currentUser.uid);
-
-  await updateDoc(ref,{
-    photoURL,
-    coverURL,
-    bio
-  });
-
-  alert("Profil enregistré");
-
-  loadProfile(currentUser.uid);
-
-};
+}
 
 
 // =====================
