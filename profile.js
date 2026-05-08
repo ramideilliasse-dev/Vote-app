@@ -3,12 +3,7 @@
 import {
   doc,
   getDoc,
-  setDoc,
-  updateDoc,
-  collection,
-  getDocs,
-  query,
-  where
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -16,266 +11,149 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 
-// =====================
-// 🔥 UID URL
-// =====================
+// =========================
+// USER ID
+// =========================
 
 const params = new URLSearchParams(window.location.search);
-const profileUid = params.get("uid");
 
-let currentUser = null;
+let profileUserId = params.get("user");
 
 
-// =====================
-// 🔄 SESSION
-// =====================
+// =========================
+// LOAD PROFILE
+// =========================
 
 onAuthStateChanged(auth, async(user)=>{
 
-  currentUser = user;
-
-  if(profileUid){
-    loadProfile(profileUid);
-    loadUserPosts(profileUid);
-    loadStats(profileUid);
-    checkFollow(profileUid);
+  if(!user){
+    window.location.href = "index.html";
+    return;
   }
+
+  // mon profil
+  if(!profileUserId){
+    profileUserId = user.uid;
+  }
+
+  loadProfile(profileUserId);
 
 });
 
 
-// =====================
-// 👤 LOAD PROFILE
-// =====================
+// =========================
+// LOAD PROFILE DATA
+// =========================
 
 async function loadProfile(uid){
 
-  const ref = doc(db,"users",uid);
-  const snap = await getDoc(ref);
+  try{
 
-  if(snap.exists()){
+    const userRef = doc(db, "users", uid);
 
-    const data = snap.data();
+    const userSnap = await getDoc(userRef);
 
+    if(!userSnap.exists()){
+      alert("Profil introuvable");
+      return;
+    }
+
+    const data = userSnap.data();
+
+    // username
     document.getElementById("profileUsername").innerText =
-      "@" + (data.username || "user");
+      "@" + (data.username || "utilisateur");
 
+    // bio
     document.getElementById("profileBio").innerText =
       data.bio || "Aucune bio";
 
-    if(data.photoURL){
+    // image profil
+    if(data.profileImage){
+
       document.getElementById("profileImage").src =
-        data.photoURL;
+        data.profileImage;
     }
 
-    if(data.coverURL){
+    // image couverture
+    if(data.coverImage){
+
       document.getElementById("cover").style.backgroundImage =
-        `url('${data.coverURL}')`;
+        `url('${data.coverImage}')`;
     }
 
-  }
+  } catch(error){
 
-}
-
-
-// =====================
-// 🔥 USER POSTS
-// =====================
-
-async function loadUserPosts(uid){
-
-  const postsRef = collection(db,"posts");
-
-  const q = query(
-    postsRef,
-    where("userId","==",uid)
-  );
-
-  const snapshot = await getDocs(q);
-
-  let html = "";
-  let count = 0;
-
-  snapshot.forEach((docSnap)=>{
-
-    const post = docSnap.data();
-
-    const score =
-      (post.votesA || 0) +
-      (post.votesB || 0);
-
-    count++;
-
-    html += `
-    <div class="post-card">
-
-      ${
-        post.imageUrl
-        ?
-        `<img src="${post.imageUrl}">`
-        :
-        ""
-      }
-
-      <div class="post-content">
-
-        <div class="post-question">
-          ${post.question}
-        </div>
-
-        <div class="score">
-          🔥 ${score} votes
-        </div>
-
-      </div>
-
-    </div>
-    `;
-
-  });
-
-  document.getElementById("userPosts").innerHTML = html;
-
-  document.getElementById("postsCount").innerText =
-    count;
-
-}
-
-
-// =====================
-// 📊 STATS
-// =====================
-
-async function loadStats(uid){
-
-  const postsRef = collection(db,"posts");
-
-  const q = query(
-    postsRef,
-    where("userId","==",uid)
-  );
-
-  const snapshot = await getDocs(q);
-
-  let totalVotes = 0;
-  let totalLikes = 0;
-
-  snapshot.forEach((docSnap)=>{
-
-    const post = docSnap.data();
-
-    totalVotes +=
-      (post.votesA || 0) +
-      (post.votesB || 0);
-
-    totalLikes +=
-      post.likes || 0;
-
-  });
-
-  document.getElementById("votesCount").innerText =
-    totalVotes;
-
-  document.getElementById("likesCount").innerText =
-    totalLikes;
-
-}
-
-
-// =====================
-// 👥 FOLLOW
-// =====================
-
-async function checkFollow(targetUid){
-
-  if(!currentUser) return;
-
-  const followId =
-    currentUser.uid + "_" + targetUid;
-
-  const ref = doc(db,"follows",followId);
-
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-
-    document.getElementById("followBtn").innerText =
-      "✅ Abonné";
-
-  }else{
-
-    document.getElementById("followBtn").innerText =
-      "👥 Suivre";
+    alert(error.message);
 
   }
 
 }
 
-
-// =====================
-// 🔥 FOLLOW / UNFOLLOW
-// =====================
-
-window.followUser = async function(){
-
-  if(!currentUser){
-    alert("Connecte-toi");
-    return;
-  }
-
-  if(currentUser.uid === profileUid){
-    alert("C'est ton profil");
-    return;
-  }
-
-  const followId =
-    currentUser.uid + "_" + profileUid;
-
-  const ref = doc(db,"follows",followId);
-
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-
-    await updateDoc(ref,{
-      active:false
-    });
-
-    await setDoc(ref,{
-      active:false
-    });
-
-    document.getElementById("followBtn").innerText =
-      "👥 Suivre";
-
-  }else{
-
-    await setDoc(ref,{
-      followerId:currentUser.uid,
-      followingId:profileUid,
-      active:true
-    });
-
-    document.getElementById("followBtn").innerText =
-      "✅ Abonné";
-
-  }
-
-};
 
 // =========================
-// 📸 UPLOAD IMAGE
+// PREVIEW IMAGE PROFIL
+// =========================
+
+document
+.getElementById("profileImageFile")
+.addEventListener("change", function(e){
+
+  const file = e.target.files[0];
+
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(event){
+
+    document.getElementById("profileImage").src =
+      event.target.result;
+
+  };
+
+  reader.readAsDataURL(file);
+
+});
+
+
+// =========================
+// PREVIEW COVER
+// =========================
+
+document
+.getElementById("coverImageFile")
+.addEventListener("change", function(e){
+
+  const file = e.target.files[0];
+
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(event){
+
+    document.getElementById("cover").style.backgroundImage =
+      `url('${event.target.result}')`;
+
+  };
+
+  reader.readAsDataURL(file);
+
+});
+
+
+// =========================
+// UPLOAD IMAGE
 // =========================
 
 async function uploadImage(file){
-
-  if(!file) return "";
 
   const formData = new FormData();
 
   formData.append("image", file);
 
-  const res = await fetch(
+  const response = await fetch(
     "https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f",
     {
       method:"POST",
@@ -283,14 +161,14 @@ async function uploadImage(file){
     }
   );
 
-  const data = await res.json();
+  const data = await response.json();
 
   return data.data.url;
 }
 
 
 // =========================
-// 💾 SAVE PROFILE
+// SAVE PROFILE
 // =========================
 
 window.saveProfile = async function(){
@@ -313,29 +191,37 @@ window.saveProfile = async function(){
     const coverFile =
       document.getElementById("coverImageFile").files[0];
 
-    let profileImage = "";
-    let coverImage = "";
+    let profileImage = null;
+    let coverImage = null;
 
-    // 📷 upload profil
+    // upload profil
     if(profileFile){
+
       profileImage = await uploadImage(profileFile);
+
     }
 
-    // 🖼️ upload couverture
+    // upload couverture
     if(coverFile){
+
       coverImage = await uploadImage(coverFile);
+
     }
 
-    let updateData = {
+    const updateData = {
       bio
     };
 
     if(profileImage){
+
       updateData.profileImage = profileImage;
+
     }
 
     if(coverImage){
+
       updateData.coverImage = coverImage;
+
     }
 
     await updateDoc(
@@ -343,32 +229,12 @@ window.saveProfile = async function(){
       updateData
     );
 
-    // refresh UI
-    if(profileImage){
-      document.getElementById("profileImage").src =
-        profileImage;
-    }
-
-    if(coverImage){
-      document.getElementById("cover").style.backgroundImage =
-        `url(${coverImage})`;
-    }
-
-    document.getElementById("profileBio").innerText =
-      bio;
-
-    alert("Profil mis à jour ✅");
+    alert("Profil enregistré ✅");
 
   } catch(error){
+
     alert(error.message);
+
   }
-}
 
-
-// =====================
-// 👆 BUTTON FOLLOW
-// =====================
-
-document
-.getElementById("followBtn")
-.addEventListener("click",followUser);
+};
