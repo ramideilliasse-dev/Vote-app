@@ -52,7 +52,6 @@ window.register = async function () {
 
     const user = userCredential.user;
 
-    // 👤 image profil par défaut
     const defaultAvatar =
       "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
@@ -123,17 +122,23 @@ window.logout = async function () {
 
   isAdmin = false;
 
-  document.getElementById("profile").style.display = "none";
+  document.getElementById("profile").style.display =
+    "none";
 
-  document.getElementById("createPost").style.display = "none";
+  document.getElementById("createPost").style.display =
+    "none";
 
-  document.getElementById("feedHeader").style.display = "none";
+  document.getElementById("feedHeader").style.display =
+    "none";
 
-  document.getElementById("notifications").style.display = "none";
+  document.getElementById("notifications").style.display =
+    "none";
 
-  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("adminPanel").style.display =
+    "none";
 
-  document.getElementById("authCard").style.display = "block";
+  document.getElementById("authCard").style.display =
+    "block";
 
   document.getElementById("feed").innerHTML = "";
 
@@ -196,7 +201,7 @@ onAuthStateChanged(auth, async (user) => {
 
 
 // =====================
-// 👤 PROFIL + PHOTO
+// 👤 PROFIL
 // =====================
 
 async function loadProfile(user){
@@ -213,16 +218,9 @@ async function loadProfile(user){
       "Email : " + data.email;
 
     document.getElementById("username").innerText =
-  "Nom : " + data.username;
+      "Nom : " + data.username;
 
-// 🖼️ PHOTO PROFIL
-if(data.profileImage){
-
-  document.getElementById("myProfileImage").src =
-    data.profileImage;
-}
-
-    // 👤 PHOTO PROFIL
+    // PHOTO PROFIL
     if(document.getElementById("myProfileImage")){
 
       document.getElementById("myProfileImage").src =
@@ -230,7 +228,7 @@ if(data.profileImage){
         "https://cdn-icons-png.flaticon.com/512/149/149071.png";
     }
 
-    // 👑 ADMIN
+    // ADMIN
     if(data.role === "admin"){
 
       isAdmin = true;
@@ -245,10 +243,9 @@ if(data.profileImage){
 
 
 // =====================
-// 👑 ADMIN PANEL
+// 👑 ADMIN
 // =====================
 
-// 🗑️ supprimer post
 window.deletePost = async function(postId){
 
   if(!isAdmin){
@@ -264,7 +261,6 @@ window.deletePost = async function(postId){
 };
 
 
-// 🗑️ supprimer tous les posts
 window.deleteAllPosts = async function(){
 
   if(!isAdmin){
@@ -288,7 +284,6 @@ window.deleteAllPosts = async function(){
 };
 
 
-// 👤 utilisateurs
 async function loadUsers(){
 
   if(!isAdmin) return;
@@ -359,7 +354,6 @@ async function loadUsers(){
 }
 
 
-// 🚫 bannir
 window.banUser = async function(uid){
 
   if(!isAdmin) return;
@@ -374,7 +368,6 @@ window.banUser = async function(uid){
 };
 
 
-// 👑 admin
 window.makeAdmin = async function(uid){
 
   if(!isAdmin) return;
@@ -389,7 +382,6 @@ window.makeAdmin = async function(uid){
 };
 
 
-// 🗑️ supprimer user
 window.deleteUser = async function(uid){
 
   if(!isAdmin) return;
@@ -540,10 +532,6 @@ window.createPost = async function(){
 
     let options = [];
 
-    // =========================
-    // BOUCLE OPTIONS
-    // =========================
-
     const letters = ["A","B","C","D","E","F"];
 
     for(let i = 0; i < total; i++){
@@ -563,32 +551,8 @@ window.createPost = async function(){
 
       let imageUrl = "";
 
-      // =========================
-      // UPLOAD IMAGE
-      // =========================
-
       if(file){
-
-        if(file.size > 5000000){
-          alert("Image trop lourde");
-          return;
-        }
-
-        const formData = new FormData();
-
-        formData.append("image", file);
-
-        const response = await fetch(
-          "https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f",
-          {
-            method: "POST",
-            body: formData
-          }
-        );
-
-        const data = await response.json();
-
-        imageUrl = data.data.url;
+        imageUrl = await uploadImage(file);
       }
 
       options.push({
@@ -597,10 +561,6 @@ window.createPost = async function(){
         votes: 0
       });
     }
-
-    // =========================
-    // ENREGISTRER POST
-    // =========================
 
     await addDoc(collection(db, "posts"), {
 
@@ -619,10 +579,6 @@ window.createPost = async function(){
 
       createdAt: serverTimestamp()
     });
-
-    // =========================
-    // RESET
-    // =========================
 
     document.getElementById("question").value = "";
 
@@ -650,13 +606,15 @@ window.createPost = async function(){
   }
 };
 
+
 // =====================
 // 📱 FEED MODERNE
 // =====================
 
 async function loadPosts(){
 
-  const snapshot = await getDocs(collection(db, "posts"));
+  const snapshot =
+    await getDocs(collection(db, "posts"));
 
   let posts = [];
 
@@ -670,7 +628,6 @@ async function loadPosts(){
     });
   }
 
-  // récent en premier
   posts.sort((a,b) => {
     return (b.createdAt?.seconds || 0)
     - (a.createdAt?.seconds || 0);
@@ -730,10 +687,6 @@ async function loadPosts(){
       <div class="options-grid">
     `;
 
-    // =====================
-    // MULTI OPTIONS
-    // =====================
-
     if(post.options){
 
       post.options.forEach((option, index) => {
@@ -742,16 +695,46 @@ async function loadPosts(){
 
         <div class="option-card">
 
-          <img src="${option.image}">
+          ${
+            option.imageUrl
+            ?
+            `
+            <img
+            src="${option.imageUrl}"
+            style="
+            width:100%;
+            height:220px;
+            object-fit:cover;
+            ">
+            `
+            :
+            `
+            <div style="
+            height:220px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#243552;
+            font-size:20px;
+            ">
+              🖼️
+            </div>
+            `
+          }
 
           <div class="option-name">
 
-            ${option.name}
+            ${option.text}
 
           </div>
 
           <button
-          onclick="voteOption('${post.id}', ${index})">
+          onclick="voteOption('${post.id}', ${index})"
+          style="
+          width:100%;
+          border-radius:0;
+          margin:0;
+          ">
 
             🗳️ VOTER
 
@@ -814,8 +797,9 @@ async function loadPosts(){
   document.getElementById("feed").innerHTML = html;
 }
 
+
 // =====================
-// 🗳️ VOTE OPTIONS
+// 🗳️ VOTE
 // =====================
 
 window.voteOption = async function(postId, index){
@@ -823,7 +807,9 @@ window.voteOption = async function(postId, index){
   const user = auth.currentUser;
 
   if(!user){
+
     alert("Connecte-toi");
+
     return;
   }
 
@@ -836,7 +822,9 @@ window.voteOption = async function(postId, index){
   const voteSnap = await getDoc(voteRef);
 
   if(voteSnap.exists()){
-    alert("Déjà voté");
+
+    alert("Tu as déjà voté");
+
     return;
   }
 
@@ -848,17 +836,18 @@ window.voteOption = async function(postId, index){
 
   let options = postData.options;
 
-  options[index].votes++;
+  options[index].votes =
+    (options[index].votes || 0) + 1;
 
-  await updateDoc(postRef, {
+  await updateDoc(postRef,{
     options
   });
 
-  await setDoc(voteRef, {
-    userId: user.uid,
+  await setDoc(voteRef,{
+    userId:user.uid,
     postId,
-    optionIndex: index,
-    createdAt: serverTimestamp()
+    option:index,
+    createdAt:serverTimestamp()
   });
 
   await addNotification(
@@ -867,7 +856,7 @@ window.voteOption = async function(postId, index){
     "vote"
   );
 
-  alert("Vote enregistré");
+  alert("Vote enregistré 🔥");
 
   loadPosts();
 };
@@ -963,60 +952,3 @@ window.sharePost = async function(postId){
 window.refreshFeed = function(){
   loadPosts();
 };
-// =====================
-// 🗳️ VOTE MULTI OPTIONS
-// =====================
-
-window.voteOption = async function(postId, index){
-
-  const user = auth.currentUser;
-
-  if(!user){
-
-    alert("Connecte-toi");
-
-    return;
-  }
-
-  const voteRef = doc(
-    db,
-    "userVotes",
-    user.uid + "_" + postId
-  );
-
-  const voteSnap = await getDoc(voteRef);
-
-  // anti double vote
-  if(voteSnap.exists()){
-
-    alert("Tu as déjà voté");
-
-    return;
-  }
-
-  const postRef = doc(db, "posts", postId);
-
-  const postSnap = await getDoc(postRef);
-
-  const postData = postSnap.data();
-
-  let options = postData.options;
-
-  options[index].votes =
-    (options[index].votes || 0) + 1;
-
-  await updateDoc(postRef,{
-    options
-  });
-
-  await setDoc(voteRef,{
-    userId:user.uid,
-    postId,
-    option:index,
-    createdAt:serverTimestamp()
-  });
-
-  alert("Vote enregistré 🔥");
-
-  loadPosts();
-}
