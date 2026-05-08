@@ -566,3 +566,114 @@ UPLOAD IMAGE
 .upload-btn:hover{
   background:#30456d;
 }
+/* =========================
+   FEED MODERNE
+========================= */
+
+.post-card{
+  background:#13213d;
+  border-radius:25px;
+  margin-bottom:25px;
+  overflow:hidden;
+  padding:15px;
+}
+
+.post-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.profile-pic{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid #ff4747;
+}
+
+.post-username{
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.main-question{
+  font-size:24px;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+
+/* GRID */
+
+.vote-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:15px;
+}
+
+/* CARD */
+
+.vote-box{
+  background:#1b2c4f;
+  border-radius:20px;
+  overflow:hidden;
+  text-align:center;
+  padding-bottom:15px;
+}
+
+/* IMAGE */
+
+.vote-image{
+  width:100%;
+  height:230px;
+  object-fit:cover;
+}
+
+/* BUTTON */
+
+.vote-btn{
+  width:90%;
+  margin-top:10px;
+  background:#ff4747;
+  color:white;
+  font-weight:bold;
+  border:none;
+  border-radius:15px;
+  padding:12px;
+}
+
+/* COUNT */
+
+.vote-count{
+  margin-top:10px;
+  font-weight:bold;
+}
+
+/* FOOTER */
+
+.post-footer{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+  flex-wrap:wrap;
+}
+
+.post-footer button{
+  flex:1;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+
+  .vote-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .vote-image{
+    height:180px;
+  }
+
+}
