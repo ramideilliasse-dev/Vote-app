@@ -544,3 +544,25 @@ button:hover{
   }
 
 }
+/* =========================
+UPLOAD IMAGE
+========================= */
+
+.upload-box{
+  display:block;
+  margin-top:15px;
+}
+
+.upload-btn{
+  background:#243552;
+  padding:18px;
+  border-radius:18px;
+  text-align:center;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+
+.upload-btn:hover{
+  background:#30456d;
+}
