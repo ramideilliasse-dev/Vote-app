@@ -363,6 +363,10 @@ async function loadNotifications(){
 // 📱 FEED FACEBOOK STYLE
 // =====================
 
+// =====================
+// 📱 FEED FACEBOOK STYLE
+// =====================
+
 async function loadPosts(){
 
   const snapshot =
@@ -380,6 +384,7 @@ async function loadPosts(){
     });
   }
 
+  // TRI PAR DATE
   posts.sort((a,b) => {
 
     return (b.createdAt?.seconds || 0)
@@ -415,7 +420,7 @@ async function loadPosts(){
             class="fb-username"
             onclick="openUserProfile('${post.userId}')">
 
-              ${post.username}
+              ${post.username || "Utilisateur"}
 
             </div>
 
@@ -432,7 +437,7 @@ async function loadPosts(){
       <!-- QUESTION -->
       <div class="fb-question">
 
-        ${post.question}
+        ${post.question || ""}
 
       </div>
 
@@ -441,7 +446,11 @@ async function loadPosts(){
 
     `;
 
-    if(post.options){
+    // =====================
+    // OPTIONS
+    // =====================
+
+    if(post.options && post.options.length > 0){
 
       post.options.forEach((option, index) => {
 
@@ -467,7 +476,7 @@ async function loadPosts(){
           }
 
           <div class="fb-option-name">
-            ${option.text}
+            ${option.text || ""}
           </div>
 
           <button
@@ -522,6 +531,22 @@ async function loadPosts(){
 
         </button>
 
+        ${
+          isAdmin
+          ?
+          `
+          <button
+          class="fb-action-btn"
+          onclick="deletePost('${post.id}')">
+
+            🗑️
+
+          </button>
+          `
+          :
+          ""
+        }
+
       </div>
 
       <!-- COMMENTS -->
@@ -558,7 +583,8 @@ async function loadPosts(){
 
   document.getElementById("feed").innerHTML = html;
 
-  loadAllComments();
+  // CHARGER COMMENTAIRES
+  await loadAllComments();
 }
 
 // =====================
