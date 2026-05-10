@@ -12,6 +12,12 @@ body{
   color:#050505;
 }
 
+/* EVITER LES IMAGES GÉANTES */
+img{
+  max-width:100%;
+  display:block;
+}
+
 /* =========================
    TOPBAR
 ========================= */
@@ -136,9 +142,7 @@ select:focus{
 
 /* BUTTONS */
 button{
-
   border:none;
-
   cursor:pointer;
 }
 
@@ -215,293 +219,14 @@ button{
 
 #feed{
 
-  max-width:700px;
+  width:100%;
+  max-width:680px;
 
   margin:auto;
 
   padding:10px;
 }
 
-/* =========================
-   POST CARD
-========================= */
-
-.post-card{
-
-  background:white;
-
-  border-radius:18px;
-
-  margin-bottom:20px;
-
-  overflow:hidden;
-
-  box-shadow:0 2px 12px rgba(0,0,0,0.08);
-}
-
-/* =========================
-   POST HEADER
-========================= */
-
-.post-header{
-
-  display:flex;
-  align-items:center;
-
-  gap:12px;
-
-  padding:15px;
-}
-
-/* PROFILE PHOTO */
-.profile-photo{
-
-  width:50px;
-  height:50px;
-
-  border-radius:50%;
-
-  object-fit:cover;
-
-  cursor:pointer;
-}
-
-/* AVATAR */
-.avatar{
-
-  width:50px;
-  height:50px;
-
-  border-radius:50%;
-
-  background:#1877f2;
-
-  color:white;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  font-weight:bold;
-
-  font-size:20px;
-
-  cursor:pointer;
-}
-
-/* USERNAME */
-.username{
-
-  font-weight:bold;
-
-  font-size:17px;
-
-  cursor:pointer;
-}
-
-/* =========================
-   QUESTION
-========================= */
-
-.post-question{
-
-  padding:0 15px 15px;
-
-  font-size:22px;
-
-  font-weight:bold;
-
-  line-height:1.4;
-}
-
-/* =========================
-   OPTIONS GRID
-========================= */
-
-.options-grid{
-
-  display:grid;
-
-  grid-template-columns:repeat(
-    auto-fit,
-    minmax(180px,1fr)
-  );
-
-  gap:8px;
-
-  padding:10px;
-}
-
-/* OPTION CARD */
-.option-card{
-
-  border-radius:15px;
-
-  overflow:hidden;
-
-  background:#f7f7f7;
-
-  border:1px solid #eee;
-}
-
-/* OPTION IMAGE */
-.option-card img{
-
-  width:100%;
-
-  height:220px;
-
-  object-fit:cover;
-}
-
-/* OPTION NAME */
-.option-name{
-
-  padding:12px;
-
-  text-align:center;
-
-  font-weight:bold;
-}
-
-/* VOTE BUTTON */
-.option-card button{
-
-  width:100%;
-
-  padding:14px;
-
-  background:#1877f2;
-
-  color:white;
-
-  font-weight:bold;
-
-  transition:0.2s;
-}
-
-.option-card button:hover{
-  background:#166fe5;
-}
-
-/* =========================
-   POST ACTIONS
-========================= */
-
-.post-actions{
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:space-around;
-
-  border-top:1px solid #eee;
-
-  border-bottom:1px solid #eee;
-
-  margin-top:10px;
-}
-
-.post-actions button{
-
-  flex:1;
-
-  padding:14px;
-
-  background:white;
-
-  font-size:15px;
-
-  font-weight:bold;
-
-  color:#65676b;
-
-  transition:0.2s;
-}
-
-.post-actions button:hover{
-
-  background:#f0f2f5;
-}
-
-/* =========================
-   COMMENTS
-========================= */
-
-.comments-section{
-
-  padding:15px;
-}
-
-.comment{
-
-  background:#f0f2f5;
-
-  padding:10px 15px;
-
-  border-radius:15px;
-
-  margin-bottom:10px;
-}
-
-.comment-user{
-
-  font-weight:bold;
-
-  margin-bottom:5px;
-}
-
-/* COMMENT INPUT */
-.comment-input{
-
-  display:flex;
-
-  gap:10px;
-
-  margin-top:15px;
-}
-
-.comment-input input{
-
-  flex:1;
-
-  margin:0;
-}
-
-.comment-input button{
-
-  background:#1877f2;
-
-  color:white;
-
-  padding:12px 18px;
-
-  border-radius:12px;
-
-  font-weight:bold;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:700px){
-
-  .post-question{
-    font-size:18px;
-  }
-
-  .options-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .story-card{
-    min-width:100px;
-    height:160px;
-  }
-
-}
 /* =========================
    FACEBOOK POST
 ========================= */
@@ -512,6 +237,7 @@ button{
   margin-bottom:20px;
   overflow:hidden;
   box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  border:1px solid #e4e6eb;
 }
 
 .fb-header{
@@ -536,11 +262,13 @@ button{
   font-weight:bold;
   color:#111;
   cursor:pointer;
+  font-size:16px;
 }
 
 .fb-time{
   font-size:13px;
   color:gray;
+  margin-top:2px;
 }
 
 .fb-question{
@@ -548,6 +276,7 @@ button{
   color:#111;
   font-size:18px;
   font-weight:600;
+  line-height:1.4;
 }
 
 .fb-options{
@@ -557,21 +286,25 @@ button{
   padding:0 15px 15px;
 }
 
+/* OPTION CARD */
 .fb-option-card{
-  background:#f5f5f5;
+  background:white;
   border-radius:15px;
   overflow:hidden;
+  border:1px solid #e4e6eb;
 }
 
+/* IMAGE FIX */
 .fb-option-image{
   width:100%;
-  height:180px;
+  height:140px;
   object-fit:cover;
   display:block;
+  background:#eee;
 }
 
 .fb-empty-image{
-  height:180px;
+  height:140px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -584,6 +317,7 @@ button{
   font-weight:bold;
   color:#111;
   text-align:center;
+  font-size:15px;
 }
 
 .vote-btn{
@@ -594,6 +328,11 @@ button{
   padding:12px;
   font-weight:bold;
   cursor:pointer;
+  transition:0.2s;
+}
+
+.vote-btn:hover{
+  background:#166fe5;
 }
 
 .vote-count{
@@ -608,21 +347,31 @@ button{
   background:#ddd;
 }
 
+/* =========================
+   ACTIONS
+========================= */
+
 .fb-actions{
   display:flex;
   justify-content:space-around;
+  align-items:center;
   padding:10px;
 }
 
 .fb-action-btn{
+  flex:1;
   border:none;
   background:none;
   font-weight:bold;
   color:#555;
   cursor:pointer;
+  padding:12px;
+  border-radius:10px;
+  transition:0.2s;
 }
 
 .fb-action-btn:hover{
+  background:#f0f2f5;
   color:#1877f2;
 }
 
@@ -646,6 +395,7 @@ button{
   padding:12px;
   border-radius:20px;
   border:1px solid #ddd;
+  margin:0;
 }
 
 .comment-box button{
@@ -655,6 +405,7 @@ button{
   padding:10px 16px;
   border-radius:20px;
   cursor:pointer;
+  font-weight:bold;
 }
 
 .comment-item{
@@ -688,6 +439,43 @@ button{
 }
 
 /* =========================
+   PROFILE FIX
+========================= */
+
+.profile-post-image,
+.profile-image-post{
+
+  width:100%;
+
+  max-height:220px;
+
+  object-fit:cover;
+
+  border-radius:12px;
+}
+
+/* =========================
+   ADMIN
+========================= */
+
+.admin-user{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  background:white;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+.admin-user-image{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+/* =========================
    RESPONSIVE
 ========================= */
 
@@ -698,7 +486,24 @@ button{
   }
 
   .fb-option-image{
-    height:220px;
+    height:160px;
+  }
+
+  .fb-empty-image{
+    height:160px;
+  }
+
+  .fb-post{
+    border-radius:14px;
+  }
+
+  .fb-question{
+    font-size:16px;
+  }
+
+  .story-card{
+    min-width:100px;
+    height:160px;
   }
 
 }
