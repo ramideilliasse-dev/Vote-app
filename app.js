@@ -9,9 +9,7 @@ import {
   collection,
   addDoc,
   getDocs,
-  serverTimestamp,
-  query,
-  where
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -137,6 +135,7 @@ window.logout = async function () {
 
   alert("Déconnecté !");
 };
+
 // =====================
 // 🔄 SESSION
 // =====================
@@ -151,12 +150,10 @@ onAuthStateChanged(auth, async (user) => {
 
   if(user){
 
-    // cacher connexion
     if(authCard){
       authCard.style.display = "none";
     }
 
-    // afficher feed
     if(mainFeed){
       mainFeed.style.display = "block";
     }
@@ -169,21 +166,28 @@ onAuthStateChanged(auth, async (user) => {
 
   } else {
 
-    // afficher connexion
     if(authCard){
       authCard.style.display = "flex";
     }
 
-    // cacher feed
     if(mainFeed){
       mainFeed.style.display = "none";
     }
 
-    // vider feed
     document.getElementById("feed").innerHTML = "";
   }
 
 });
+
+// =====================
+// 🔄 REFRESH FEED
+// =====================
+
+window.refreshFeed = async function(){
+
+  await loadPosts();
+
+};
 
 // =====================
 // 👤 PROFIL
@@ -212,7 +216,10 @@ async function loadProfile(user){
         data.username;
     }
 
-    if(data.role === "admin"){
+    if(
+      data.role === "admin" &&
+      document.getElementById("adminPanel")
+    ){
 
       isAdmin = true;
 
@@ -276,6 +283,8 @@ async function loadUsers(){
 
   if(!isAdmin) return;
 
+  if(!document.getElementById("userList")) return;
+
   const snapshot =
     await getDocs(collection(db, "users"));
 
@@ -338,6 +347,13 @@ async function loadNotifications(){
 
   const user = auth.currentUser;
 
+  if(!user) return;
+
+  const notifBox =
+    document.getElementById("notifList");
+
+  if(!notifBox) return;
+
   const snapshot =
     await getDocs(collection(db, "notifications"));
 
@@ -363,236 +379,276 @@ async function loadNotifications(){
     }
   });
 
-  document.getElementById("notifList").innerHTML =
+  notifBox.innerHTML =
     html || "<p>Aucune notification</p>";
 }
 
 // =====================
-// 📱 FEED FACEBOOK STYLE
-// =====================
-
-// =====================
-// 📱 FEED FACEBOOK STYLE
+// 📱 LOAD POSTS
 // =====================
 
 async function loadPosts(){
 
-  const snapshot =
-    await getDocs(collection(db, "posts"));
+  const feed =
+    document.getElementById("feed");
 
-  let posts = [];
+  if(!feed) return;
 
-  for(const docSnap of snapshot.docs){
+  try{
 
-    const post = docSnap.data();
+    const snapshot =
+      await getDocs(collection(db, "posts"));
 
-    posts.push({
-      id: docSnap.id,
-      ...post
-    });
-  }
+    let posts = [];
 
-  // TRI PAR DATE
-  posts.sort((a,b) => {
+    snapshot.forEach((docSnap) => {
 
-    return (b.createdAt?.seconds || 0)
-    - (a.createdAt?.seconds || 0);
+      const post = docSnap.data();
 
-  });
-
-  let html = "";
-
-  posts.forEach((post) => {
-
-    html += `
-
-    <div class="fb-post">
-
-      <!-- HEADER -->
-      <div class="fb-header">
-
-        <div class="fb-user-info">
-
-          <img
-            src="${
-              post.profileImage ||
-              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-            }"
-            class="fb-profile"
-            onclick="openUserProfile('${post.userId}')"
-          >
-
-          <div>
-
-            <div
-            class="fb-username"
-            onclick="openUserProfile('${post.userId}')">
-
-              ${post.username || "Utilisateur"}
-
-            </div>
-
-            <div class="fb-time">
-              Publication
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- QUESTION -->
-      <div class="fb-question">
-
-        ${post.question || ""}
-
-      </div>
-
-      <!-- OPTIONS -->
-      <div class="fb-options">
-
-    `;
-
-    // =====================
-    // OPTIONS
-    // =====================
-
-    if(post.options && post.options.length > 0){
-
-      post.options.forEach((option, index) => {
-
-        html += `
-
-        <div class="fb-option-card">
-
-          ${
-            option.imageUrl
-            ?
-            `
-            <img
-              src="${option.imageUrl}"
-              class="fb-option-image"
-            >
-            `
-            :
-            `
-            <div class="fb-empty-image">
-              🖼️
-            </div>
-            `
-          }
-
-          <div class="fb-option-name">
-            ${option.text || ""}
-          </div>
-
-          <button
-            class="vote-btn"
-            onclick="voteOption('${post.id}', ${index})"
-          >
-            🗳️ Voter
-          </button>
-
-          <div class="vote-count">
-            ${option.votes || 0} votes
-          </div>
-
-        </div>
-
-        `;
+      posts.push({
+        id: docSnap.id,
+        ...post
       });
 
+    });
+
+    // TRI PAR DATE
+    posts.sort((a,b) => {
+
+      return (
+        (b.createdAt?.seconds || 0)
+        - (a.createdAt?.seconds || 0)
+      );
+
+    });
+
+    let html = "";
+
+    // SI AUCUN POST
+    if(posts.length === 0){
+
+      html = `
+        <div style="
+          background:white;
+          padding:30px;
+          border-radius:20px;
+          text-align:center;
+          margin-top:20px;
+        ">
+          Aucun post publié
+        </div>
+      `;
+
+      feed.innerHTML = html;
+
+      return;
     }
 
-    html += `
+    // POSTS
+    posts.forEach((post) => {
 
-      </div>
+      html += `
 
-      <!-- LINE -->
-      <div class="fb-line"></div>
+      <div class="fb-post">
 
-      <!-- ACTIONS -->
-      <div class="fb-actions">
+        <!-- HEADER -->
+        <div class="fb-header">
 
-        <button
-        class="fb-action-btn"
-        onclick="likePost('${post.id}')">
+          <div class="fb-user-info">
 
-          👍 J’aime (${post.likes || 0})
+            <img
+              src="${
+                post.profileImage ||
+                'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+              }"
+              class="fb-profile"
+              onclick="openUserProfile('${post.userId || ""}')"
+            >
 
-        </button>
+            <div>
 
-        <button
-        class="fb-action-btn"
-        onclick="toggleComments('${post.id}')">
+              <div
+              class="fb-username"
+              onclick="openUserProfile('${post.userId || ""}')">
 
-          💬 Commenter
+                ${post.username || "Utilisateur"}
 
-        </button>
+              </div>
 
-        <button
-        class="fb-action-btn"
-        onclick="sharePost('${post.id}')">
+              <div class="fb-time">
+                Publication
+              </div>
 
-          📤 Partager
+            </div>
 
-        </button>
+          </div>
 
-        ${
-          isAdmin
-          ?
-          `
+        </div>
+
+        <!-- QUESTION -->
+        <div class="fb-question">
+
+          ${post.question || ""}
+
+        </div>
+
+        <!-- OPTIONS -->
+        <div class="fb-options">
+
+      `;
+
+      // OPTIONS
+      if(post.options && post.options.length > 0){
+
+        post.options.forEach((option, index) => {
+
+          html += `
+
+          <div class="fb-option-card">
+
+            ${
+              option.imageUrl
+              ?
+              `
+              <img
+                src="${option.imageUrl}"
+                class="fb-option-image"
+              >
+              `
+              :
+              `
+              <div class="fb-empty-image">
+                🖼️
+              </div>
+              `
+            }
+
+            <div class="fb-option-name">
+              ${option.text || ""}
+            </div>
+
+            <button
+              class="vote-btn"
+              onclick="voteOption('${post.id}', ${index})"
+            >
+              🗳️ Voter
+            </button>
+
+            <div class="vote-count">
+              ${option.votes || 0} votes
+            </div>
+
+          </div>
+
+          `;
+        });
+
+      }
+
+      html += `
+
+        </div>
+
+        <!-- LINE -->
+        <div class="fb-line"></div>
+
+        <!-- ACTIONS -->
+        <div class="fb-actions">
+
           <button
           class="fb-action-btn"
-          onclick="deletePost('${post.id}')">
+          onclick="likePost('${post.id}')">
 
-            🗑️
+            👍 J’aime (${post.likes || 0})
 
           </button>
-          `
-          :
-          ""
-        }
-
-      </div>
-
-      <!-- COMMENTS -->
-      <div
-      class="comments-section"
-      id="comments-${post.id}"
-      style="display:none;">
-
-        <div id="commentsList-${post.id}"></div>
-
-        <div class="comment-box">
-
-          <input
-            type="text"
-            id="commentInput-${post.id}"
-            placeholder="Écrire un commentaire..."
-          >
 
           <button
-          onclick="addComment('${post.id}')">
+          class="fb-action-btn"
+          onclick="toggleComments('${post.id}')">
 
-            Envoyer
+            💬 Commenter
 
           </button>
+
+          <button
+          class="fb-action-btn"
+          onclick="sharePost('${post.id}')">
+
+            📤 Partager
+
+          </button>
+
+          ${
+            isAdmin
+            ?
+            `
+            <button
+            class="fb-action-btn"
+            onclick="deletePost('${post.id}')">
+
+              🗑️
+
+            </button>
+            `
+            :
+            ""
+          }
+
+        </div>
+
+        <!-- COMMENTS -->
+        <div
+        class="comments-section"
+        id="comments-${post.id}"
+        style="display:none;">
+
+          <div id="commentsList-${post.id}"></div>
+
+          <div class="comment-box">
+
+            <input
+              type="text"
+              id="commentInput-${post.id}"
+              placeholder="Écrire un commentaire..."
+            >
+
+            <button
+            onclick="addComment('${post.id}')">
+
+              Envoyer
+
+            </button>
+
+          </div>
 
         </div>
 
       </div>
 
-    </div>
+      `;
+    });
 
+    feed.innerHTML = html;
+
+    await loadAllComments();
+
+  } catch(error){
+
+    console.log(error);
+
+    feed.innerHTML = `
+      <div style="
+        background:white;
+        padding:30px;
+        border-radius:20px;
+        text-align:center;
+        margin-top:20px;
+      ">
+        Erreur chargement posts
+      </div>
     `;
-  });
-
-  document.getElementById("feed").innerHTML = html;
-
-  // CHARGER COMMENTAIRES
-  await loadAllComments();
+  }
 }
 
 // =====================
@@ -623,257 +679,4 @@ window.addComment = async function(postId){
     alert("Connecte-toi");
 
     return;
-  }
-
-  const input =
-    document.getElementById("commentInput-" + postId);
-
-  const text = input.value.trim();
-
-  if(!text){
-
-    return;
-  }
-
-  const userSnap =
-    await getDoc(doc(db, "users", user.uid));
-
-  const userData = userSnap.data();
-
-  await addDoc(collection(db, "comments"), {
-
-    postId,
-
-    userId: user.uid,
-
-    username: userData.username,
-
-    profileImage: userData.profileImage || "",
-
-    text,
-
-    createdAt: serverTimestamp()
-  });
-
-  input.value = "";
-
-  loadComments(postId);
-};
-
-async function loadAllComments(){
-
-  const posts =
-    await getDocs(collection(db, "posts"));
-
-  posts.forEach((post) => {
-
-    loadComments(post.id);
-
-  });
-}
-
-async function loadComments(postId){
-
-  const snapshot =
-    await getDocs(collection(db, "comments"));
-
-  let html = "";
-
-  snapshot.forEach((docSnap) => {
-
-    const comment = docSnap.data();
-
-    if(comment.postId === postId){
-
-      html += `
-
-      <div class="comment-item">
-
-        <img
-          src="${
-            comment.profileImage ||
-            'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-          }"
-          class="comment-profile"
-        >
-
-        <div class="comment-content">
-
-          <div class="comment-user">
-            ${comment.username}
-          </div>
-
-          <div class="comment-text">
-            ${comment.text}
-          </div>
-
-        </div>
-
-      </div>
-
-      `;
-    }
-  });
-
-  document.getElementById(
-    "commentsList-" + postId
-  ).innerHTML = html;
-}
-
-// =====================
-// 🗳️ VOTE
-// =====================
-
-window.voteOption = async function(postId, index){
-
-  const user = auth.currentUser;
-
-  if(!user){
-
-    alert("Connecte-toi");
-
-    return;
-  }
-
-  const voteRef = doc(
-    db,
-    "userVotes",
-    user.uid + "_" + postId
-  );
-
-  const voteSnap = await getDoc(voteRef);
-
-  if(voteSnap.exists()){
-
-    alert("Tu as déjà voté");
-
-    return;
-  }
-
-  const postRef = doc(db, "posts", postId);
-
-  const postSnap = await getDoc(postRef);
-
-  const postData = postSnap.data();
-
-  let options = postData.options;
-
-  options[index].votes =
-    (options[index].votes || 0) + 1;
-
-  await updateDoc(postRef,{
-    options
-  });
-
-  await setDoc(voteRef,{
-    userId:user.uid,
-    postId,
-    option:index,
-    createdAt:serverTimestamp()
-  });
-
-  await addNotification(
-    postData.userId,
-    user.uid,
-    "vote"
-  );
-
-  loadPosts();
-};
-
-// =====================
-// ❤️ LIKE
-// =====================
-
-window.likePost = async function(postId){
-
-  const user = auth.currentUser;
-
-  if(!user){
-    alert("Connecte-toi");
-    return;
-  }
-
-  const likeRef = doc(
-    db,
-    "postLikes",
-    user.uid + "_" + postId
-  );
-
-  const likeSnap = await getDoc(likeRef);
-
-  if(likeSnap.exists()){
-    alert("Déjà liké");
-    return;
-  }
-
-  const postRef = doc(db, "posts", postId);
-
-  const postSnap = await getDoc(postRef);
-
-  const postData = postSnap.data();
-
-  await updateDoc(postRef, {
-    likes: (postData.likes || 0) + 1
-  });
-
-  await setDoc(likeRef, {
-    userId: user.uid,
-    postId
-  });
-
-  await addNotification(
-    postData.userId,
-    user.uid,
-    "like"
-  );
-
-  loadPosts();
-};
-
-// =====================
-// 📤 SHARE
-// =====================
-
-window.sharePost = async function(postId){
-
-  const url =
-    window.location.origin +
-    "/index.html?post=" +
-    postId;
-
-  if(navigator.share){
-
-    try{
-
-      await navigator.share({
-        title: "Vote App 🔥",
-        text: "Viens voter 🔥",
-        url
-      });
-
-    } catch(e){}
-
-  } else {
-
-    await navigator.clipboard.writeText(url);
-
-    alert("Lien copié !");
-  }
-};
-
-// =====================
-// 👤 OPEN PROFILE
-// =====================
-
-window.openUserProfile = function(userId){
-
-  window.location.href =
-    "profile.html?user=" + userId;
-};
-
-window.openMyProfile = function(){
-
-  window.location.href =
-    "profile.html";
-};
+ 
