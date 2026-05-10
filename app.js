@@ -232,38 +232,6 @@ async function loadProfile(user){
 }
 
 // =====================
-// 📸 UPLOAD IMAGE
-// =====================
-
-async function uploadImage(file){
-
-  if(!file) return "";
-
-  if(file.size > 5000000){
-
-    alert("Image trop lourde");
-
-    return "";
-  }
-
-  const formData = new FormData();
-
-  formData.append("image", file);
-
-  const res = await fetch(
-    "https://api.imgbb.com/1/upload?key=ba51854ee84cfa7eb88af864a04ac02f",
-    {
-      method: "POST",
-      body: formData
-    }
-  );
-
-  const data = await res.json();
-
-  return data.data.url;
-}
-
-// =====================
 // 👑 ADMIN
 // =====================
 
@@ -412,7 +380,6 @@ async function loadPosts(){
 
     });
 
-    // TRI PAR DATE
     posts.sort((a,b) => {
 
       return (
@@ -423,7 +390,6 @@ async function loadPosts(){
 
     });
 
-    // AUCUN POST
     if(posts.length === 0){
 
       feed.innerHTML = `
@@ -458,7 +424,6 @@ async function loadPosts(){
 
       <div class="fb-post">
 
-        <!-- HEADER -->
         <div class="fb-header">
 
           <div class="fb-user-info">
@@ -492,14 +457,12 @@ async function loadPosts(){
 
         </div>
 
-        <!-- QUESTION -->
         <div class="fb-question">
 
           ${post.question || ""}
 
         </div>
 
-        <!-- OPTIONS -->
         <div class="fb-options">
 
       `;
@@ -534,7 +497,7 @@ async function loadPosts(){
 
           <button
             class="vote-btn"
-            onclick="voteOption('${post.id}', ${index})"
+            onclick="voteOption('${post.id}', ${index}, event)"
           >
             🗳️ Voter
           </button>
@@ -552,15 +515,13 @@ async function loadPosts(){
 
         </div>
 
-        <!-- LINE -->
         <div class="fb-line"></div>
 
-        <!-- ACTIONS -->
         <div class="fb-actions">
 
           <button
           class="fb-action-btn"
-          onclick="likePost('${post.id}')">
+          onclick="likePost('${post.id}', event)">
 
             👍 J’aime (${post.likes || 0})
 
@@ -600,7 +561,6 @@ async function loadPosts(){
 
         </div>
 
-        <!-- COMMENTS -->
         <div
         class="comments-section"
         id="comments-${post.id}"
@@ -617,7 +577,7 @@ async function loadPosts(){
             >
 
             <button
-            onclick="addComment('${post.id}')">
+            onclick="addComment('${post.id}', event)">
 
               Envoyer
 
@@ -634,7 +594,7 @@ async function loadPosts(){
 
     feed.innerHTML = html;
 
-    await loadAllComments();
+    loadAllComments();
 
   } catch(error){
 
@@ -659,6 +619,30 @@ async function loadPosts(){
 }
 
 // =====================
+// 📥 LOAD ALL COMMENTS
+// =====================
+
+async function loadAllComments(){
+
+  try{
+
+    const postsSnapshot =
+      await getDocs(collection(db, "posts"));
+
+    postsSnapshot.forEach((postDoc) => {
+
+      loadComments(postDoc.id);
+
+    });
+
+  } catch(error){
+
+    console.log(error);
+
+  }
+}
+
+// =====================
 // 💬 COMMENTS
 // =====================
 
@@ -677,7 +661,7 @@ window.toggleComments = function(postId){
   }
 };
 
-window.addComment = async function(postId){
+window.addComment = async function(postId, event){
 
   const user = auth.currentUser;
 
@@ -754,11 +738,65 @@ window.addComment = async function(postId){
     stopButtonLoading(button);
   }
 };
+
+async function loadComments(postId){
+
+  const snapshot =
+    await getDocs(collection(db, "comments"));
+
+  let html = "";
+
+  snapshot.forEach((docSnap) => {
+
+    const comment = docSnap.data();
+
+    if(comment.postId === postId){
+
+      html += `
+
+      <div class="comment-item">
+
+        <img
+          src="${
+            comment.profileImage ||
+            'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+          }"
+          class="comment-profile"
+        >
+
+        <div class="comment-content">
+
+          <div class="comment-user">
+            ${comment.username}
+          </div>
+
+          <div class="comment-text">
+            ${comment.text}
+          </div>
+
+        </div>
+
+      </div>
+
+      `;
+    }
+  });
+
+  const commentsBox =
+    document.getElementById(
+      "commentsList-" + postId
+    );
+
+  if(commentsBox){
+    commentsBox.innerHTML = html;
+  }
+}
+
 // =====================
 // 🗳️ VOTE
 // =====================
 
-window.voteOption = async function(postId, index){
+window.voteOption = async function(postId, index, event){
 
   const user = auth.currentUser;
 
@@ -842,7 +880,7 @@ window.voteOption = async function(postId, index){
 // ❤️ LIKE
 // =====================
 
-window.likePost = async function(postId){
+window.likePost = async function(postId, event){
 
   const user = auth.currentUser;
 
@@ -965,6 +1003,7 @@ window.openMyProfile = function(){
   window.location.href =
     "profile.html";
 };
+
 // =====================
 // 🔍 IMAGE ZOOM
 // =====================
@@ -1009,6 +1048,8 @@ window.zoomImage = function(imageUrl){
 
 function startButtonLoading(button){
 
+  if(!button) return;
+
   button.disabled = true;
 
   button.dataset.oldText =
@@ -1019,6 +1060,8 @@ function startButtonLoading(button){
 }
 
 function stopButtonLoading(button){
+
+  if(!button) return;
 
   button.disabled = false;
 
