@@ -119,59 +119,67 @@ window.logout = async function () {
 
   isAdmin = false;
 
-  document.getElementById("profile").style.display =
-    "none";
+  const authCard =
+    document.getElementById("authCard");
 
-  document.getElementById("notifications").style.display =
-    "none";
+  const mainFeed =
+    document.getElementById("mainFeed");
 
-  document.getElementById("adminPanel").style.display =
-    "none";
+  if(authCard){
+    authCard.style.display = "flex";
+  }
 
-  document.getElementById("authCard").style.display =
-    "block";
+  if(mainFeed){
+    mainFeed.style.display = "none";
+  }
 
   document.getElementById("feed").innerHTML = "";
 
-  document.getElementById("notifList").innerHTML = "";
-
   alert("Déconnecté !");
 };
-
 // =====================
 // 🔄 SESSION
 // =====================
 
 onAuthStateChanged(auth, async (user) => {
 
+  const authCard =
+    document.getElementById("authCard");
+
+  const mainFeed =
+    document.getElementById("mainFeed");
+
   if(user){
 
-    document.getElementById("authCard").style.display =
-      "none";
+    // cacher connexion
+    if(authCard){
+      authCard.style.display = "none";
+    }
 
-    document.getElementById("profile").style.display =
-      "flex";
-
-    document.getElementById("notifications").style.display =
-      "block";
+    // afficher feed
+    if(mainFeed){
+      mainFeed.style.display = "block";
+    }
 
     await loadProfile(user);
 
-    loadPosts();
+    await loadPosts();
 
     loadNotifications();
 
   } else {
 
-    document.getElementById("authCard").style.display =
-      "block";
+    // afficher connexion
+    if(authCard){
+      authCard.style.display = "flex";
+    }
 
-    document.getElementById("profile").style.display =
-      "none";
+    // cacher feed
+    if(mainFeed){
+      mainFeed.style.display = "none";
+    }
 
-    document.getElementById("notifications").style.display =
-      "none";
-
+    // vider feed
     document.getElementById("feed").innerHTML = "";
   }
 
