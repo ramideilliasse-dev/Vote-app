@@ -679,4 +679,262 @@ window.addComment = async function(postId){
     alert("Connecte-toi");
 
     return;
- 
+  }
+
+  const input =
+    document.getElementById("commentInput-" + postId);
+
+  const text = input.value.trim();
+
+  if(!text){
+
+    return;
+  }
+
+  const userSnap =
+    await getDoc(doc(db, "users", user.uid));
+
+  const userData = userSnap.data();
+
+  await addDoc(collection(db, "comments"), {
+
+    postId,
+
+    userId: user.uid,
+
+    username: userData.username,
+
+    profileImage: userData.profileImage || "",
+
+    text,
+
+    createdAt: serverTimestamp()
+  });
+
+  input.value = "";
+
+  loadComments(postId);
+};
+
+async function loadAllComments(){
+
+  const posts =
+    await getDocs(collection(db, "posts"));
+
+  posts.forEach((post) => {
+
+    loadComments(post.id);
+
+  });
+}
+
+async function loadComments(postId){
+
+  const snapshot =
+    await getDocs(collection(db, "comments"));
+
+  let html = "";
+
+  snapshot.forEach((docSnap) => {
+
+    const comment = docSnap.data();
+
+    if(comment.postId === postId){
+
+      html += `
+
+      <div class="comment-item">
+
+        <img
+          src="${
+            comment.profileImage ||
+            'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+          }"
+          class="comment-profile"
+        >
+
+        <div class="comment-content">
+
+          <div class="comment-user">
+            ${comment.username}
+          </div>
+
+          <div class="comment-text">
+            ${comment.text}
+          </div>
+
+        </div>
+
+      </div>
+
+      `;
+    }
+  });
+
+  const commentsBox =
+    document.getElementById(
+      "commentsList-" + postId
+    );
+
+  if(commentsBox){
+    commentsBox.innerHTML = html;
+  }
+}
+
+// =====================
+// 🗳️ VOTE
+// =====================
+
+window.voteOption = async function(postId, index){
+
+  const user = auth.currentUser;
+
+  if(!user){
+
+    alert("Connecte-toi");
+
+    return;
+  }
+
+  const voteRef = doc(
+    db,
+    "userVotes",
+    user.uid + "_" + postId
+  );
+
+  const voteSnap = await getDoc(voteRef);
+
+  if(voteSnap.exists()){
+
+    alert("Tu as déjà voté");
+
+    return;
+  }
+
+  const postRef = doc(db, "posts", postId);
+
+  const postSnap = await getDoc(postRef);
+
+  const postData = postSnap.data();
+
+  let options = postData.options;
+
+  options[index].votes =
+    (options[index].votes || 0) + 1;
+
+  await updateDoc(postRef,{
+    options
+  });
+
+  await setDoc(voteRef,{
+    userId:user.uid,
+    postId,
+    option:index,
+    createdAt:serverTimestamp()
+  });
+
+  await addNotification(
+    postData.userId,
+    user.uid,
+    "vote"
+  );
+
+  loadPosts();
+};
+
+// =====================
+// ❤️ LIKE
+// =====================
+
+window.likePost = async function(postId){
+
+  const user = auth.currentUser;
+
+  if(!user){
+    alert("Connecte-toi");
+    return;
+  }
+
+  const likeRef = doc(
+    db,
+    "postLikes",
+    user.uid + "_" + postId
+  );
+
+  const likeSnap = await getDoc(likeRef);
+
+  if(likeSnap.exists()){
+    alert("Déjà liké");
+    return;
+  }
+
+  const postRef = doc(db, "posts", postId);
+
+  const postSnap = await getDoc(postRef);
+
+  const postData = postSnap.data();
+
+  await updateDoc(postRef, {
+    likes: (postData.likes || 0) + 1
+  });
+
+  await setDoc(likeRef, {
+    userId: user.uid,
+    postId
+  });
+
+  await addNotification(
+    postData.userId,
+    user.uid,
+    "like"
+  );
+
+  loadPosts();
+};
+
+// =====================
+// 📤 SHARE
+// =====================
+
+window.sharePost = async function(postId){
+
+  const url =
+    window.location.origin +
+    "/index.html?post=" +
+    postId;
+
+  if(navigator.share){
+
+    try{
+
+      await navigator.share({
+        title: "Vote App 🔥",
+        text: "Viens voter 🔥",
+        url
+      });
+
+    } catch(e){}
+
+  } else {
+
+    await navigator.clipboard.writeText(url);
+
+    alert("Lien copié !");
+  }
+};
+
+// =====================
+// 👤 OPEN PROFILE
+// =====================
+
+window.openUserProfile = function(userId){
+
+  window.location.href =
+    "profile.html?user=" + userId;
+};
+
+window.openMyProfile = function(){
+
+  window.location.href =
+    "profile.html";
+};
