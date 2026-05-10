@@ -403,11 +403,11 @@ async function loadPosts(){
 
     snapshot.forEach((docSnap) => {
 
-      const post = docSnap.data();
+      const postData = docSnap.data();
 
       posts.push({
         id: docSnap.id,
-        ...post
+        ...postData
       });
 
     });
@@ -417,35 +417,42 @@ async function loadPosts(){
 
       return (
         (b.createdAt?.seconds || 0)
-        - (a.createdAt?.seconds || 0)
+        -
+        (a.createdAt?.seconds || 0)
       );
 
     });
 
-    let html = "";
-
-    // SI AUCUN POST
+    // AUCUN POST
     if(posts.length === 0){
 
-      html = `
+      feed.innerHTML = `
+
         <div style="
           background:white;
-          padding:30px;
+          padding:25px;
           border-radius:20px;
           text-align:center;
           margin-top:20px;
         ">
-          Aucun post publié
-        </div>
-      `;
 
-      feed.innerHTML = html;
+          Aucun post disponible
+
+        </div>
+
+      `;
 
       return;
     }
 
-    // POSTS
+    let html = "";
+
     posts.forEach((post) => {
+
+      const options =
+        Array.isArray(post.options)
+        ? post.options
+        : [];
 
       html += `
 
@@ -497,54 +504,49 @@ async function loadPosts(){
 
       `;
 
-      // OPTIONS
-      if(post.options && post.options.length > 0){
+      options.forEach((option, index) => {
 
-        post.options.forEach((option, index) => {
+        html += `
 
-          html += `
+        <div class="fb-option-card">
 
-          <div class="fb-option-card">
-
-            ${
-              option.imageUrl
-              ?
-              `
-              <img
-  src="${option.imageUrl}"
-  class="fb-option-image"
-  onclick="zoomImage('${option.imageUrl}')"
->
-              `
-              :
-              `
-              <div class="fb-empty-image">
-                🖼️
-              </div>
-              `
-            }
-
-            <div class="fb-option-name">
-              ${option.text || ""}
-            </div>
-
-            <button
-              class="vote-btn"
-              onclick="voteOption('${post.id}', ${index})"
+          ${
+            option?.imageUrl
+            ?
+            `
+            <img
+              src="${option.imageUrl}"
+              class="fb-option-image"
+              onclick="zoomImage('${option.imageUrl}')"
             >
-              🗳️ Voter
-            </button>
-
-            <div class="vote-count">
-              ${option.votes || 0} votes
+            `
+            :
+            `
+            <div class="fb-empty-image">
+              🖼️
             </div>
+            `
+          }
 
+          <div class="fb-option-name">
+            ${option?.text || ""}
           </div>
 
-          `;
-        });
+          <button
+            class="vote-btn"
+            onclick="voteOption('${post.id}', ${index})"
+          >
+            🗳️ Voter
+          </button>
 
-      }
+          <div class="vote-count">
+            ${option?.votes || 0} votes
+          </div>
+
+        </div>
+
+        `;
+      });
 
       html += `
 
@@ -639,15 +641,19 @@ async function loadPosts(){
     console.log(error);
 
     feed.innerHTML = `
+
       <div style="
         background:white;
-        padding:30px;
+        padding:25px;
         border-radius:20px;
         text-align:center;
         margin-top:20px;
       ">
+
         Erreur chargement posts
+
       </div>
+
     `;
   }
 }
