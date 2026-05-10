@@ -511,9 +511,10 @@ async function loadPosts(){
               ?
               `
               <img
-                src="${option.imageUrl}"
-                class="fb-option-image"
-              >
+  src="${option.imageUrl}"
+  class="fb-option-image"
+  onclick="zoomImage('${option.imageUrl}')"
+>
               `
               :
               `
@@ -681,106 +682,72 @@ window.addComment = async function(postId){
     return;
   }
 
-  const input =
-    document.getElementById("commentInput-" + postId);
+  const button =
+    event.target;
 
-  const text = input.value.trim();
+  startButtonLoading(button);
 
-  if(!text){
+  try{
 
-    return;
-  }
+    const input =
+      document.getElementById(
+        "commentInput-" + postId
+      );
 
-  const userSnap =
-    await getDoc(doc(db, "users", user.uid));
+    const text =
+      input.value.trim();
 
-  const userData = userSnap.data();
+    if(!text){
 
-  await addDoc(collection(db, "comments"), {
+      stopButtonLoading(button);
 
-    postId,
-
-    userId: user.uid,
-
-    username: userData.username,
-
-    profileImage: userData.profileImage || "",
-
-    text,
-
-    createdAt: serverTimestamp()
-  });
-
-  input.value = "";
-
-  loadComments(postId);
-};
-
-async function loadAllComments(){
-
-  const posts =
-    await getDocs(collection(db, "posts"));
-
-  posts.forEach((post) => {
-
-    loadComments(post.id);
-
-  });
-}
-
-async function loadComments(postId){
-
-  const snapshot =
-    await getDocs(collection(db, "comments"));
-
-  let html = "";
-
-  snapshot.forEach((docSnap) => {
-
-    const comment = docSnap.data();
-
-    if(comment.postId === postId){
-
-      html += `
-
-      <div class="comment-item">
-
-        <img
-          src="${
-            comment.profileImage ||
-            'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-          }"
-          class="comment-profile"
-        >
-
-        <div class="comment-content">
-
-          <div class="comment-user">
-            ${comment.username}
-          </div>
-
-          <div class="comment-text">
-            ${comment.text}
-          </div>
-
-        </div>
-
-      </div>
-
-      `;
+      return;
     }
-  });
 
-  const commentsBox =
-    document.getElementById(
-      "commentsList-" + postId
+    const userSnap =
+      await getDoc(
+        doc(db, "users", user.uid)
+      );
+
+    const userData =
+      userSnap.data();
+
+    await addDoc(
+      collection(db, "comments"),
+      {
+
+        postId,
+
+        userId: user.uid,
+
+        username:
+          userData.username,
+
+        profileImage:
+          userData.profileImage || "",
+
+        text,
+
+        createdAt:
+          serverTimestamp()
+      }
     );
 
-  if(commentsBox){
-    commentsBox.innerHTML = html;
-  }
-}
+    input.value = "";
 
+    await loadComments(postId);
+
+  } catch(error){
+
+    console.log(error);
+
+    alert("Erreur commentaire");
+
+  } finally {
+
+    stopButtonLoading(button);
+  }
+};
 // =====================
 // 🗳️ VOTE
 // =====================
