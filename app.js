@@ -790,56 +790,79 @@ window.voteOption = async function(postId, index){
   const user = auth.currentUser;
 
   if(!user){
-
     alert("Connecte-toi");
-
     return;
   }
 
-  const voteRef = doc(
-    db,
-    "userVotes",
-    user.uid + "_" + postId
-  );
+  const button =
+    event.target;
 
-  const voteSnap = await getDoc(voteRef);
+  startButtonLoading(button);
 
-  if(voteSnap.exists()){
+  try{
 
-    alert("Tu as déjà voté");
+    const voteRef = doc(
+      db,
+      "userVotes",
+      user.uid + "_" + postId
+    );
 
-    return;
+    const voteSnap =
+      await getDoc(voteRef);
+
+    if(voteSnap.exists()){
+
+      stopButtonLoading(button);
+
+      alert("Tu as déjà voté");
+
+      return;
+    }
+
+    const postRef =
+      doc(db, "posts", postId);
+
+    const postSnap =
+      await getDoc(postRef);
+
+    const postData =
+      postSnap.data();
+
+    let options =
+      postData.options || [];
+
+    options[index].votes =
+      (options[index].votes || 0) + 1;
+
+    await updateDoc(postRef,{
+      options
+    });
+
+    await setDoc(voteRef,{
+      userId:user.uid,
+      postId,
+      option:index,
+      createdAt:serverTimestamp()
+    });
+
+    await addNotification(
+      postData.userId,
+      user.uid,
+      "vote"
+    );
+
+    await loadPosts();
+
+  } catch(error){
+
+    console.log(error);
+
+    alert("Erreur vote");
+
+  } finally {
+
+    stopButtonLoading(button);
   }
-
-  const postRef = doc(db, "posts", postId);
-
-  const postSnap = await getDoc(postRef);
-
-  const postData = postSnap.data();
-
-  let options = postData.options;
-
-  options[index].votes =
-    (options[index].votes || 0) + 1;
-
-  await updateDoc(postRef,{
-    options
-  });
-
-  await setDoc(voteRef,{
-    userId:user.uid,
-    postId,
-    option:index,
-    createdAt:serverTimestamp()
-  });
-
-  await addNotification(
-    postData.userId,
-    user.uid,
-    "vote"
-  );
-
-  loadPosts();
 };
 
 // =====================
@@ -855,41 +878,72 @@ window.likePost = async function(postId){
     return;
   }
 
-  const likeRef = doc(
-    db,
-    "postLikes",
-    user.uid + "_" + postId
-  );
+  const button =
+    event.target;
 
-  const likeSnap = await getDoc(likeRef);
+  startButtonLoading(button);
 
-  if(likeSnap.exists()){
-    alert("Déjà liké");
-    return;
+  try{
+
+    const likeRef = doc(
+      db,
+      "postLikes",
+      user.uid + "_" + postId
+    );
+
+    const likeSnap =
+      await getDoc(likeRef);
+
+    if(likeSnap.exists()){
+
+      stopButtonLoading(button);
+
+      alert("Déjà liké");
+
+      return;
+    }
+
+    const postRef =
+      doc(db, "posts", postId);
+
+    const postSnap =
+      await getDoc(postRef);
+
+    const postData =
+      postSnap.data();
+
+    await updateDoc(postRef, {
+
+      likes:
+      (postData.likes || 0) + 1
+
+    });
+
+    await setDoc(likeRef, {
+
+      userId:user.uid,
+      postId
+
+    });
+
+    await addNotification(
+      postData.userId,
+      user.uid,
+      "like"
+    );
+
+    await loadPosts();
+
+  } catch(error){
+
+    console.log(error);
+
+    alert("Erreur like");
+
+  } finally {
+
+    stopButtonLoading(button);
   }
-
-  const postRef = doc(db, "posts", postId);
-
-  const postSnap = await getDoc(postRef);
-
-  const postData = postSnap.data();
-
-  await updateDoc(postRef, {
-    likes: (postData.likes || 0) + 1
-  });
-
-  await setDoc(likeRef, {
-    userId: user.uid,
-    postId
-  });
-
-  await addNotification(
-    postData.userId,
-    user.uid,
-    "like"
-  );
-
-  loadPosts();
 };
 
 // =====================
@@ -938,3 +992,63 @@ window.openMyProfile = function(){
   window.location.href =
     "profile.html";
 };
+// =====================
+// 🔍 IMAGE ZOOM
+// =====================
+
+window.zoomImage = function(imageUrl){
+
+  const oldViewer =
+    document.getElementById("imageViewer");
+
+  if(oldViewer){
+    oldViewer.remove();
+  }
+
+  const viewer =
+    document.createElement("div");
+
+  viewer.id = "imageViewer";
+
+  viewer.innerHTML = `
+
+    <div class="image-viewer-bg">
+
+      <img
+        src="${imageUrl}"
+        class="image-viewer-img"
+      >
+
+    </div>
+
+  `;
+
+  document.body.appendChild(viewer);
+
+  viewer.onclick = function(){
+    viewer.remove();
+  };
+};
+
+// =====================
+// 🔵 BUTTON LOADING
+// =====================
+
+function startButtonLoading(button){
+
+  button.disabled = true;
+
+  button.dataset.oldText =
+    button.innerHTML;
+
+  button.innerHTML =
+    `<div class="blue-loader"></div>`;
+}
+
+function stopButtonLoading(button){
+
+  button.disabled = false;
+
+  button.innerHTML =
+    button.dataset.oldText;
+}
