@@ -27,12 +27,11 @@ onAuthStateChanged(auth, async(user) => {
     return;
   }
 
-  loadProfile(user.uid);
+  await loadProfile(user.uid);
 
-  loadUserPosts(user.uid);
+  await loadUserPosts(user.uid);
 
 });
-
 
 // =====================
 // 📸 UPLOAD IMAGE
@@ -64,46 +63,85 @@ async function uploadImage(file){
   return data.data.url;
 }
 
-
 // =====================
 // 👤 LOAD PROFILE
 // =====================
 
 async function loadProfile(uid){
 
-  const userRef = doc(db, "users", uid);
+  try{
 
-  const userSnap = await getDoc(userRef);
+    const userRef = doc(db, "users", uid);
 
-  if(!userSnap.exists()) return;
+    const userSnap = await getDoc(userRef);
 
-  const userData = userSnap.data();
+    if(!userSnap.exists()) return;
 
-  // COVER
-  document.getElementById("coverImage").src =
-    userData.coverImage ||
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1600";
+    const userData = userSnap.data();
 
-  // PROFILE IMAGE
-  document.getElementById("profileImage").src =
-    userData.profileImage ||
-    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    // COVER
+    document.getElementById("coverImage").src =
+      userData.coverImage ||
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1600";
 
-  // INFOS
-  document.getElementById("profileUsername").innerText =
-    userData.username || "Utilisateur";
+    // PROFILE IMAGE
+    document.getElementById("profileImage").src =
+      userData.profileImage ||
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-  document.getElementById("profileBio").innerText =
-    userData.bio || "Salut 👋";
+    // INFOS
+    document.getElementById("profileUsername").innerText =
+      userData.username || "Utilisateur";
 
-  document.getElementById("followersCount").innerText =
-    userData.followers || 0;
+    document.getElementById("profileBio").innerText =
+      userData.bio || "Salut 👋";
 
-  document.getElementById("likesCount").innerText =
-    userData.likes || 0;
+    // =====================
+    // 📊 CALCUL POSTS + LIKES
+    // =====================
 
+    const postsQuery = query(
+      collection(db, "posts"),
+      where("userId", "==", uid)
+    );
+
+    const postsSnapshot =
+      await getDocs(postsQuery);
+
+    let totalPosts = 0;
+
+    let totalLikes = 0;
+
+    postsSnapshot.forEach((docSnap) => {
+
+      totalPosts++;
+
+      const post = docSnap.data();
+
+      totalLikes += post.likes || 0;
+
+    });
+
+    // POSTS
+    if(document.getElementById("postsCount")){
+      document.getElementById("postsCount").innerText =
+        totalPosts;
+    }
+
+    // FOLLOWERS
+    document.getElementById("followersCount").innerText =
+      userData.followers || 0;
+
+    // LIKES
+    document.getElementById("likesCount").innerText =
+      totalLikes;
+
+  }catch(error){
+
+    console.log(error);
+
+  }
 }
-
 
 // =====================
 // ✏️ MODIFIER PROFIL
@@ -165,7 +203,7 @@ window.saveProfile = async function(){
 
     alert("Profil mis à jour 🔥");
 
-    loadProfile(user.uid);
+    await loadProfile(user.uid);
 
   }catch(error){
 
@@ -173,7 +211,6 @@ window.saveProfile = async function(){
 
   }
 };
-
 
 // =====================
 // 📝 CREATE POST
@@ -279,7 +316,9 @@ window.createPost = async function(){
 
     alert("Post publié 🔥");
 
-    loadUserPosts(user.uid);
+    await loadProfile(user.uid);
+
+    await loadUserPosts(user.uid);
 
   }catch(error){
 
@@ -288,133 +327,139 @@ window.createPost = async function(){
   }
 };
 
-
 // =====================
 // 📱 USER POSTS
 // =====================
 
 async function loadUserPosts(uid){
 
-  const postsQuery = query(
-    collection(db, "posts"),
-    where("userId", "==", uid)
-  );
+  try{
 
-  const snapshot = await getDocs(postsQuery);
+    const postsQuery = query(
+      collection(db, "posts"),
+      where("userId", "==", uid)
+    );
 
-  let posts = [];
+    const snapshot = await getDocs(postsQuery);
 
-  snapshot.forEach((docSnap) => {
+    let posts = [];
 
-    posts.push({
-      id: docSnap.id,
-      ...docSnap.data()
+    snapshot.forEach((docSnap) => {
+
+      posts.push({
+        id: docSnap.id,
+        ...docSnap.data()
+      });
+
     });
 
-  });
+    posts.sort((a,b) => {
+      return (b.createdAt?.seconds || 0)
+      - (a.createdAt?.seconds || 0);
+    });
 
-  posts.sort((a,b) => {
-    return (b.createdAt?.seconds || 0)
-    - (a.createdAt?.seconds || 0);
-  });
+    let html = "";
 
-  let html = "";
+    if(posts.length === 0){
 
-  if(posts.length === 0){
-
-    html = `
-      <div class="empty-posts">
-        Aucun post pour le moment
-      </div>
-    `;
-
-  }
-
-  posts.forEach((post) => {
-
-    html += `
-
-    <div class="profile-post-card">
-
-      <div class="profile-post-header">
-
-        <img
-          src="${
-            post.profileImage ||
-            'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-          }"
-          class="profile-post-avatar"
-        >
-
-        <div>
-          <div class="profile-post-name">
-            ${post.username}
-          </div>
+      html = `
+        <div class="empty-posts">
+          Aucun post pour le moment
         </div>
-
-      </div>
-
-      <div class="profile-post-question">
-        ${post.question}
-      </div>
-
-      <div class="profile-options-grid">
-    `;
-
-    if(post.options){
-
-      post.options.forEach((option) => {
-
-        html += `
-
-        <div class="profile-option-card">
-
-          ${
-            option.imageUrl
-            ?
-            `
-            <img
-              src="${option.imageUrl}"
-              class="profile-option-image"
-            >
-            `
-            :
-            `
-            <div class="profile-no-image">
-              🖼️
-            </div>
-            `
-          }
-
-          <div class="profile-option-name">
-            ${option.text}
-          </div>
-
-          <div class="profile-votes">
-            🗳️ ${option.votes || 0} votes
-          </div>
-
-        </div>
-
-        `;
-
-      });
+      `;
 
     }
 
-    html += `
+    posts.forEach((post) => {
+
+      html += `
+
+      <div class="profile-post-card">
+
+        <div class="profile-post-header">
+
+          <img
+            src="${
+              post.profileImage ||
+              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+            }"
+            class="profile-post-avatar"
+          >
+
+          <div>
+            <div class="profile-post-name">
+              ${post.username}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="profile-post-question">
+          ${post.question}
+        </div>
+
+        <div class="profile-options-grid">
+      `;
+
+      if(post.options){
+
+        post.options.forEach((option) => {
+
+          html += `
+
+          <div class="profile-option-card">
+
+            ${
+              option.imageUrl
+              ?
+              `
+              <img
+                src="${option.imageUrl}"
+                class="profile-option-image"
+              >
+              `
+              :
+              `
+              <div class="profile-no-image">
+                🖼️
+              </div>
+              `
+            }
+
+            <div class="profile-option-name">
+              ${option.text}
+            </div>
+
+            <div class="profile-votes">
+              🗳️ ${option.votes || 0} votes
+            </div>
+
+          </div>
+
+          `;
+
+        });
+
+      }
+
+      html += `
+
+        </div>
 
       </div>
 
-    </div>
+      `;
 
-    `;
+    });
 
-  });
+    document.getElementById("userPosts").innerHTML = html;
 
-  document.getElementById("userPosts").innerHTML = html;
+  }catch(error){
+
+    console.log(error);
+
+  }
 }
-
 
 // =====================
 // 🔄 OPTIONS DYNAMIQUES
