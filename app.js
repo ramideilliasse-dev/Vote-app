@@ -234,8 +234,11 @@ async function loadProfile(user){
         data.username || "Utilisateur";
     }
 
-    // ADMIN
-    if(data.role === "admin"){
+    // ADMIN / SUPERADMIN
+if(
+  data.role === "admin" ||
+  data.role === "superadmin"
+){
 
       isAdmin = true;
 
