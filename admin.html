@@ -1,0 +1,92 @@
+ <!-- admin.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+
+  <link rel="stylesheet" href="admin.css">
+
+  <script type="module" src="admin.js"></script>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <header class="admin-topbar">
+
+    <div class="admin-logo">
+      🔥 Vote App Admin
+    </div>
+
+    <div class="admin-top-right">
+
+      <img
+        id="adminProfile"
+        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+        class="admin-avatar"
+      >
+
+      <button onclick="logoutAdmin()" class="logout-btn">
+        Déconnexion
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- MAIN -->
+  <main class="admin-container">
+
+    <!-- STATS -->
+    <section class="stats-grid">
+
+      <div class="stat-card">
+        <h3>👥 Utilisateurs</h3>
+        <div id="usersCount" class="stat-number">0</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>📝 Posts</h3>
+        <div id="postsCount" class="stat-number">0</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>💬 Commentaires</h3>
+        <div id="commentsCount" class="stat-number">0</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>❤️ Likes</h3>
+        <div id="likesCount" class="stat-number">0</div>
+      </div>
+
+    </section>
+
+    <!-- USERS -->
+    <section class="admin-section">
+
+      <div class="section-header">
+        <h2>👤 Gestion utilisateurs</h2>
+      </div>
+
+      <div id="usersList"></div>
+
+    </section>
+
+    <!-- POSTS -->
+    <section class="admin-section">
+
+      <div class="section-header">
+        <h2>📝 Gestion posts</h2>
+      </div>
+
+      <div id="postsList"></div>
+
+    </section>
+
+  </main>
+
+</body>
+</html>
