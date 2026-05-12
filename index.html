@@ -14,7 +14,7 @@ body{
   margin:0;
   padding:0;
   background:#f0f2f5;
-  font-family:Arial,sans-serif;
+  font-family:Arial, sans-serif;
 }
 
 /* ===================== */
@@ -91,6 +91,17 @@ body{
 
 #topUsername{
   font-weight:bold;
+}
+
+.top-btn{
+  border:none;
+  background:#1877f2;
+  color:white;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
 }
 
 /* ===================== */
@@ -295,19 +306,6 @@ body{
 }
 
 /* ===================== */
-/* NOTIFICATIONS */
-/* ===================== */
-
-#notifList{
-  width:95%;
-  max-width:700px;
-  margin:15px auto;
-  background:white;
-  padding:15px;
-  border-radius:20px;
-}
-
-/* ===================== */
 /* IMAGE ZOOM */
 /* ===================== */
 
@@ -346,10 +344,6 @@ body{
     transform:rotate(360deg);
   }
 }
-
-/* ===================== */
-/* EMPTY */
-/* ===================== */
 
 .empty-posts{
   background:white;
@@ -420,37 +414,27 @@ body{
 
     <div class="top-right">
 
-      <!-- ADMIN BUTTON -->
+      <!-- NOTIFICATIONS -->
 
       <button
-        id="adminBtn"
-        class="auth-btn"
-        style="
-          padding:10px 15px;
-          display:none;
-        "
-        onclick="window.location.href='admin.html'"
+        class="top-btn"
+        onclick="window.location.href='notifications.html'"
       >
-        Dashboard
+        🔔
       </button>
 
-      <!-- LOGOUT -->
+      <!-- SETTINGS -->
 
       <button
-        class="auth-btn"
-        style="padding:10px 15px;"
-        onclick="logout()"
+        class="top-btn"
+        onclick="window.location.href='settings.html'"
       >
-        Déconnexion
+        ⚙️
       </button>
 
     </div>
 
   </div>
-
-  <!-- NOTIFICATIONS -->
-
-  <div id="notifList"></div>
 
   <!-- POSTS -->
 
