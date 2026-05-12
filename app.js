@@ -540,8 +540,8 @@ async function loadPosts(){
               </div>
 
               <div class="fb-time">
-                Publication
-              </div>
+  ${formatTime(post.createdAt)}
+</div>
 
             </div>
 
