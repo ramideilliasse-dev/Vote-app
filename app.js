@@ -235,6 +235,7 @@ async function loadProfile(user){
     }
 
     // ADMIN / SUPERADMIN
+// ADMIN / SUPERADMIN
 if(
   data.role === "admin" ||
   data.role === "superadmin"
@@ -248,6 +249,12 @@ if(
   if(adminBtn){
     adminBtn.style.display = "block";
   }
+}
+
+}catch(error){
+
+  console.log(error);
+}
 }
 
 // =====================
