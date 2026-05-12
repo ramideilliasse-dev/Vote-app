@@ -1,0 +1,410 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Paramètres</title>
+
+<style>
+
+body{
+  margin:0;
+  padding:0;
+  font-family:Arial, sans-serif;
+  background:#f0f2f5;
+}
+
+/* ===================== */
+/* TOPBAR */
+/* ===================== */
+
+.settings-topbar{
+  background:white;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+.back-btn{
+  border:none;
+  background:#1877f2;
+  color:white;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.settings-title{
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* ===================== */
+/* PROFILE CARD */
+/* ===================== */
+
+.profile-card{
+  width:92%;
+  max-width:700px;
+  margin:20px auto;
+  background:white;
+  border-radius:25px;
+  padding:25px;
+  text-align:center;
+  box-shadow:0 2px 15px rgba(0,0,0,0.08);
+}
+
+.profile-image{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  border:4px solid #1877f2;
+}
+
+.profile-name{
+  margin-top:15px;
+  font-size:24px;
+  font-weight:bold;
+}
+
+.profile-email{
+  color:gray;
+  margin-top:5px;
+}
+
+.profile-bio{
+  margin-top:15px;
+  font-size:15px;
+  color:#444;
+}
+
+/* ===================== */
+/* SETTINGS LIST */
+/* ===================== */
+
+.settings-box{
+  width:92%;
+  max-width:700px;
+  margin:20px auto;
+  background:white;
+  border-radius:25px;
+  overflow:hidden;
+  box-shadow:0 2px 15px rgba(0,0,0,0.08);
+}
+
+.settings-item{
+  padding:18px 20px;
+  border-bottom:1px solid #eee;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+}
+
+.settings-item:last-child{
+  border-bottom:none;
+}
+
+.settings-left{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.settings-icon{
+  font-size:22px;
+}
+
+.settings-text{
+  font-size:16px;
+  font-weight:bold;
+}
+
+.arrow{
+  color:gray;
+}
+
+/* ===================== */
+/* LOGOUT */
+/* ===================== */
+
+.logout-btn{
+  width:92%;
+  max-width:700px;
+  margin:25px auto;
+  display:block;
+  padding:18px;
+  border:none;
+  border-radius:20px;
+  background:#e53935;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* ===================== */
+/* MOBILE */
+/* ===================== */
+
+@media(max-width:700px){
+
+  .profile-card,
+  .settings-box,
+  .logout-btn{
+    width:95%;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+
+<div class="settings-topbar">
+
+  <button
+    class="back-btn"
+    onclick="goBack()"
+  >
+    ←
+  </button>
+
+  <div class="settings-title">
+    Paramètres
+  </div>
+
+</div>
+
+<!-- PROFILE -->
+
+<div class="profile-card">
+
+  <img
+    id="settingsProfileImage"
+    class="profile-image"
+    src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+  >
+
+  <div
+    id="settingsUsername"
+    class="profile-name"
+  >
+    Utilisateur
+  </div>
+
+  <div
+    id="settingsEmail"
+    class="profile-email"
+  >
+    utilisateur@email.com
+  </div>
+
+  <div
+    id="settingsBio"
+    class="profile-bio"
+  >
+    Salut 👋
+  </div>
+
+</div>
+
+<!-- SETTINGS -->
+
+<div class="settings-box">
+
+  <div class="settings-item">
+
+    <div class="settings-left">
+
+      <div class="settings-icon">
+        👤
+      </div>
+
+      <div class="settings-text">
+        Modifier profil
+      </div>
+
+    </div>
+
+    <div class="arrow">›</div>
+
+  </div>
+
+  <div class="settings-item">
+
+    <div class="settings-left">
+
+      <div class="settings-icon">
+        🖼️
+      </div>
+
+      <div class="settings-text">
+        Changer photo
+      </div>
+
+    </div>
+
+    <div class="arrow">›</div>
+
+  </div>
+
+  <div class="settings-item">
+
+    <div class="settings-left">
+
+      <div class="settings-icon">
+        🔔
+      </div>
+
+      <div class="settings-text">
+        Notifications
+      </div>
+
+    </div>
+
+    <div class="arrow">›</div>
+
+  </div>
+
+  <div class="settings-item">
+
+    <div class="settings-left">
+
+      <div class="settings-icon">
+        🌙
+      </div>
+
+      <div class="settings-text">
+        Mode sombre
+      </div>
+
+    </div>
+
+    <div class="arrow">›</div>
+
+  </div>
+
+</div>
+
+<!-- LOGOUT -->
+
+<button
+  class="logout-btn"
+  onclick="logout()"
+>
+  Déconnexion
+</button>
+
+<script type="module">
+
+import { db, auth } from "./firebase.js";
+
+import {
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* ===================== */
+/* LOAD USER */
+/* ===================== */
+
+onAuthStateChanged(auth, async(user)=>{
+
+  if(!user){
+
+    window.location.href = "index.html";
+
+    return;
+  }
+
+  try{
+
+    const snap =
+      await getDoc(doc(db,"users",user.uid));
+
+    if(!snap.exists()) return;
+
+    const data = snap.data();
+
+    document.getElementById(
+      "settingsProfileImage"
+    ).src =
+      data.profileImage ||
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+    document.getElementById(
+      "settingsUsername"
+    ).innerText =
+      data.username || "Utilisateur";
+
+    document.getElementById(
+      "settingsEmail"
+    ).innerText =
+      data.email || "";
+
+    document.getElementById(
+      "settingsBio"
+    ).innerText =
+      data.bio || "Salut 👋";
+
+  }catch(error){
+
+    console.log(error);
+  }
+
+});
+
+/* ===================== */
+/* BACK */
+/* ===================== */
+
+window.goBack = function(){
+
+  window.history.back();
+};
+
+/* ===================== */
+/* LOGOUT */
+/* ===================== */
+
+window.logout = async function(){
+
+  try{
+
+    await signOut(auth);
+
+    alert("Déconnecté");
+
+    window.location.href =
+      "index.html";
+
+  }catch(error){
+
+    console.log(error);
+  }
+};
+
+</script>
+
+</body>
+</html>
