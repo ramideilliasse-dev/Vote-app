@@ -14,7 +14,7 @@ body{
   margin:0;
   padding:0;
   background:#f0f2f5;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
 }
 
 /* ===================== */
@@ -295,31 +295,16 @@ body{
 }
 
 /* ===================== */
-/* ADMIN */
+/* NOTIFICATIONS */
 /* ===================== */
 
-#adminPanel{
+#notifList{
   width:95%;
   max-width:700px;
-  margin:20px auto;
+  margin:15px auto;
   background:white;
+  padding:15px;
   border-radius:20px;
-  padding:20px;
-  display:none;
-}
-
-.admin-user{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top:15px;
-}
-
-.admin-user-image{
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  object-fit:cover;
 }
 
 /* ===================== */
@@ -343,7 +328,7 @@ body{
 }
 
 /* ===================== */
-/* BLUE LOADER */
+/* LOADER */
 /* ===================== */
 
 .blue-loader{
@@ -361,6 +346,10 @@ body{
     transform:rotate(360deg);
   }
 }
+
+/* ===================== */
+/* EMPTY */
+/* ===================== */
 
 .empty-posts{
   background:white;
@@ -419,7 +408,7 @@ body{
 
       <img
         id="myProfileImage"
-        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+        src=""
         onclick="openMyProfile()"
       >
 
@@ -431,14 +420,21 @@ body{
 
     <div class="top-right">
 
+      <!-- ADMIN BUTTON -->
+
       <button
-        id="adminDashboardBtn"
+        id="adminBtn"
         class="auth-btn"
-        style="padding:10px 15px;display:none;"
+        style="
+          padding:10px 15px;
+          display:none;
+        "
         onclick="window.location.href='admin.html'"
       >
-        👑 Dashboard
+        Dashboard
       </button>
+
+      <!-- LOGOUT -->
 
       <button
         class="auth-btn"
@@ -452,29 +448,9 @@ body{
 
   </div>
 
-  <!-- ADMIN PANEL -->
-
-  <div id="adminPanel">
-
-    <h2>👑 Admin Panel</h2>
-
-    <div id="userList"></div>
-
-  </div>
-
   <!-- NOTIFICATIONS -->
 
-  <div
-    id="notifList"
-    style="
-      width:95%;
-      max-width:700px;
-      margin:15px auto;
-      background:white;
-      padding:15px;
-      border-radius:20px;
-    "
-  ></div>
+  <div id="notifList"></div>
 
   <!-- POSTS -->
 
