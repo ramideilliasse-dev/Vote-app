@@ -233,8 +233,7 @@ async function loadProfile(user){
       topUsername.innerText =
         data.username || "Utilisateur";
     }
-
-    // ADMIN / SUPERADMIN
+   
 // ADMIN / SUPERADMIN
 if(
   data.role === "admin" ||
