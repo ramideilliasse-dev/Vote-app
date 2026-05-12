@@ -584,3 +584,12 @@ button{
     transform:rotate(360deg);
   }
 }
+.top-btn{
+  border:none;
+  background:#1877f2;
+  color:white;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  font-size:18px;
+}
