@@ -50,6 +50,7 @@ body{
   color:white;
   font-size:16px;
   font-weight:bold;
+  cursor:pointer;
 }
 
 /* ===================== */
@@ -74,11 +75,18 @@ body{
   gap:10px;
 }
 
+.top-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
 #myProfileImage{
   width:45px;
   height:45px;
   border-radius:50%;
   object-fit:cover;
+  cursor:pointer;
 }
 
 #topUsername{
@@ -196,6 +204,7 @@ body{
   background:#1877f2;
   color:white;
   font-weight:bold;
+  cursor:pointer;
 }
 
 .vote-count{
@@ -254,6 +263,7 @@ body{
   border-radius:12px;
   background:#1877f2;
   color:white;
+  cursor:pointer;
 }
 
 .comment-item{
@@ -409,7 +419,7 @@ body{
 
       <img
         id="myProfileImage"
-        src=""
+        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
         onclick="openMyProfile()"
       >
 
@@ -419,13 +429,26 @@ body{
 
     </div>
 
-    <button
-      class="auth-btn"
-      style="padding:10px 15px;"
-      onclick="logout()"
-    >
-      Déconnexion
-    </button>
+    <div class="top-right">
+
+      <button
+        id="adminDashboardBtn"
+        class="auth-btn"
+        style="padding:10px 15px;display:none;"
+        onclick="window.location.href='admin.html'"
+      >
+        👑 Dashboard
+      </button>
+
+      <button
+        class="auth-btn"
+        style="padding:10px 15px;"
+        onclick="logout()"
+      >
+        Déconnexion
+      </button>
+
+    </div>
 
   </div>
 
