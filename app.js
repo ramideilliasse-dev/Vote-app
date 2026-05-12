@@ -386,22 +386,68 @@ async function loadNotifications(){
 
       if(notif.toUserId === user.uid){
 
+        let notifText = "";
+        let notifIcon = "";
+
+        // LIKE
         if(notif.type === "like"){
-          html += `<p>❤️ Quelqu’un a aimé ton post</p>`;
+
+          notifIcon = "👍";
+
+          notifText =
+            "Votre publication a reçu une réaction";
         }
 
+        // VOTE
         if(notif.type === "vote"){
-          html += `<p>🗳️ Nouveau vote sur ton post</p>`;
+
+          notifIcon = "📊";
+
+          notifText =
+            "Nouveau vote sur votre publication";
         }
 
+        // COMMENT
         if(notif.type === "comment"){
-          html += `<p>💬 Nouveau commentaire</p>`;
+
+          notifIcon = "💬";
+
+          notifText =
+            "Nouveau commentaire sur votre publication";
         }
+
+        html += `
+
+        <div class="notif-card">
+
+          <div class="notif-icon">
+            ${notifIcon}
+          </div>
+
+          <div class="notif-content">
+
+            <div class="notif-text">
+              ${notifText}
+            </div>
+
+            <div class="notif-time">
+              Notification récente
+            </div>
+
+          </div>
+
+        </div>
+
+        `;
       }
     });
 
     notifBox.innerHTML =
-      html || "<p>Aucune notification</p>";
+      html || `
+      <div class="notif-empty">
+        Aucune notification
+      </div>
+      `;
 
   }catch(error){
 
