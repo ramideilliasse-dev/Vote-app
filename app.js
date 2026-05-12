@@ -617,12 +617,14 @@ async function loadPosts(){
           </button>
 
           <button
-          class="fb-action-btn"
-          onclick="toggleComments('${post.id}')">
+class="fb-action-btn"
+onclick="toggleComments('${post.id}')">
 
-            💬 Commenter
+  💬 Commenter (
+    ${post.commentCount || 0}
+  )
 
-          </button>
+</button>
 
           <button
           class="fb-action-btn"
