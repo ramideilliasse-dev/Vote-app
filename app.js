@@ -1126,7 +1126,52 @@ window.zoomImage = function(imageUrl){
 // =====================
 // 🔵 BUTTON LOADING
 // =====================
+// =====================
+// ⏱️ FORMAT TIME
+// =====================
 
+function formatTime(createdAt){
+
+  if(!createdAt?.seconds){
+
+    return "À l’instant";
+  }
+
+  const now =
+    Date.now();
+
+  const postTime =
+    createdAt.seconds * 1000;
+
+  const diff =
+    Math.floor((now - postTime)/1000);
+
+  if(diff < 60){
+
+    return "À l’instant";
+  }
+
+  if(diff < 3600){
+
+    return Math.floor(diff/60) +
+    " min";
+  }
+
+  if(diff < 86400){
+
+    return Math.floor(diff/3600) +
+    " h";
+  }
+
+  if(diff < 604800){
+
+    return Math.floor(diff/86400) +
+    " j";
+  }
+
+  return Math.floor(diff/604800) +
+  " sem";
+}
 function startButtonLoading(button){
 
   if(!button) return;
