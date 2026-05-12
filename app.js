@@ -240,22 +240,13 @@ if(
   data.role === "superadmin"
 ){
 
-      isAdmin = true;
+  isAdmin = true;
 
-      const adminPanel =
-        document.getElementById("adminPanel");
+  const adminBtn =
+    document.getElementById("adminBtn");
 
-      if(adminPanel){
-
-        adminPanel.style.display = "block";
-      }
-
-      await loadUsers();
-    }
-
-  }catch(error){
-
-    console.log(error);
+  if(adminBtn){
+    adminBtn.style.display = "block";
   }
 }
 
