@@ -779,7 +779,19 @@ window.addComment = async function(postId,event){
       createdAt:serverTimestamp()
 
     });
-
+await updateDoc(
+  doc(db,"posts",postId),
+  {
+    commentCount:
+    (
+      (
+        await getDoc(
+          doc(db,"posts",postId)
+        )
+      ).data().commentCount || 0
+    ) + 1
+  }
+);
     input.value = "";
 
     await loadComments(postId);
