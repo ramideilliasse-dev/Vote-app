@@ -661,7 +661,8 @@ ${
 
           <button
           class="fb-action-btn"
-          onclick="likePost('${post.id}', event)">
+          onclick="likePost('${post.id}', event)"
+id="likeBtn-${post.id}">
 
             👍 J’aime (${post.likes || 0})
 
@@ -1045,7 +1046,15 @@ window.likePost = async function(
       event.target;
 
     startButtonLoading(button);
+button.classList.add("like-animation");
 
+setTimeout(()=>{
+
+  button.classList.remove(
+    "like-animation"
+  );
+
+},300);
     const likeRef = doc(
       db,
       "postLikes",
