@@ -545,11 +545,62 @@ async function loadPosts(){
 
             </div>
 
-          </div>
+         </div>
 
-        </div>
+<button
+class="post-menu-btn"
+onclick="togglePostMenu('${post.id}')"
+>
+⋮
+</button>
 
-        <div class="fb-question">
+</div>
+
+<div
+class="post-menu"
+id="menu-${post.id}"
+style="display:none;"
+>
+
+<button onclick="sharePost('${post.id}')">
+📤 Partager
+</button>
+
+<button onclick="copyPostLink('${post.id}')">
+🔗 Copier lien
+</button>
+
+<button onclick="savePost('${post.id}')">
+⭐ Enregistrer
+</button>
+
+<button onclick="reportPost('${post.id}')">
+🚨 Signaler
+</button>
+
+${
+  (
+    auth.currentUser &&
+    (
+      auth.currentUser.uid === post.userId ||
+      isAdmin
+    )
+  )
+  ?
+  `
+  <button
+  onclick="deletePost('${post.id}')"
+  style="color:red;">
+    🗑️ Supprimer
+  </button>
+  `
+  :
+  ""
+}
+
+</div>
+
+<div class="fb-question">
           ${post.question || ""}
         </div>
 
@@ -1208,3 +1259,68 @@ function stopButtonLoading(button){
   button.innerHTML =
     button.dataset.oldText;
 }
+// =====================
+// ⋮ POST MENU
+// =====================
+
+window.togglePostMenu = function(postId){
+
+  const menu =
+    document.getElementById(
+      "menu-" + postId
+    );
+
+  if(!menu) return;
+
+  if(menu.style.display === "none"){
+
+    document
+      .querySelectorAll(".post-menu")
+      .forEach((m)=>{
+        m.style.display = "none";
+      });
+
+    menu.style.display = "block";
+
+  }else{
+
+    menu.style.display = "none";
+  }
+};
+
+window.copyPostLink = async function(postId){
+
+  const url =
+    window.location.origin +
+    "/index.html?post=" +
+    postId;
+
+  await navigator.clipboard.writeText(url);
+
+  alert("Lien copié !");
+};
+
+window.savePost = async function(postId){
+
+  alert("Post enregistré ⭐");
+};
+
+window.reportPost = async function(postId){
+
+  alert("Post signalé 🚨");
+};
+
+document.addEventListener("click",(e)=>{
+
+  if(
+    !e.target.closest(".post-menu") &&
+    !e.target.closest(".post-menu-btn")
+  ){
+
+    document
+      .querySelectorAll(".post-menu")
+      .forEach((menu)=>{
+        menu.style.display = "none";
+      });
+  }
+});
