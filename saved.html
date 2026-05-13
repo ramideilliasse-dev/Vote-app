@@ -1,0 +1,91 @@
+ <!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Posts enregistrés</title>
+
+<style>
+
+body{
+  margin:0;
+  padding:0;
+  background:#f0f2f5;
+  font-family:Arial,sans-serif;
+}
+
+.topbar{
+  background:white;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+  position:sticky;
+  top:0;
+}
+
+.back-btn{
+  border:none;
+  background:#1877f2;
+  color:white;
+  padding:10px 15px;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+#savedFeed{
+  width:95%;
+  max-width:700px;
+  margin:20px auto;
+}
+
+.saved-post{
+  background:white;
+  border-radius:20px;
+  padding:15px;
+  margin-bottom:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+.saved-image{
+  width:100%;
+  border-radius:15px;
+  margin-top:10px;
+}
+
+.empty{
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="topbar">
+
+  <button
+    class="back-btn"
+    onclick="history.back()"
+  >
+    Retour
+  </button>
+
+  <h2>⭐ Posts enregistrés</h2>
+
+</div>
+
+<div id="savedFeed"></div>
+
+<script type="module" src="saved.js"></script>
+
+</body>
+</html>
