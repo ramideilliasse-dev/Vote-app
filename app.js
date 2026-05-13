@@ -1311,7 +1311,53 @@ window.copyPostLink = async function(postId){
 
 window.savePost = async function(postId){
 
-  alert("Post enregistré ⭐");
+  try{
+
+    const user =
+      auth.currentUser;
+
+    if(!user){
+
+      alert("Connecte-toi");
+
+      return;
+    }
+
+    const saveId =
+      user.uid + "_" + postId;
+
+    const saveRef =
+      doc(db,"savedPosts",saveId);
+
+    const saveSnap =
+      await getDoc(saveRef);
+
+    if(saveSnap.exists()){
+
+      alert("Post déjà enregistré ⭐");
+
+      return;
+    }
+
+    await setDoc(saveRef,{
+
+      userId:user.uid,
+
+      postId,
+
+      createdAt:
+      serverTimestamp()
+
+    });
+
+    alert("Post enregistré ⭐");
+
+  }catch(error){
+
+    console.log(error);
+
+    alert("Erreur sauvegarde");
+  }
 };
 
 window.reportPost = async function(postId){
