@@ -1,5 +1,6 @@
  <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 
 <meta charset="UTF-8">
@@ -137,32 +138,26 @@ body{
 
 .arrow{
   color:gray;
+  font-size:20px;
 }
 
 /* ===================== */
-/* BUTTONS */
+/* LOGOUT */
 /* ===================== */
 
 .logout-btn{
   width:92%;
   max-width:700px;
-  margin:20px auto;
+  margin:25px auto;
   display:block;
   padding:18px;
   border:none;
   border-radius:20px;
+  background:#e53935;
   color:white;
   font-size:18px;
   font-weight:bold;
   cursor:pointer;
-}
-
-.saved-btn{
-  background:#1877f2;
-}
-
-.logout-red{
-  background:#e53935;
 }
 
 /* ===================== */
@@ -322,19 +317,10 @@ body{
 
 </div>
 
-<!-- POSTS ENREGISTRÉS -->
-
-<button
-  class="logout-btn saved-btn"
-  onclick="window.location.href='saved.html'"
->
-  ⭐ Voir les posts enregistrés
-</button>
-
 <!-- LOGOUT -->
 
 <button
-  class="logout-btn logout-red"
+  class="logout-btn"
   onclick="logout()"
 >
   Déconnexion
