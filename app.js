@@ -514,7 +514,10 @@ async function loadPosts(){
 
       html += `
 
-      <div class="fb-post">
+      <div
+  class="fb-post"
+  onclick="openPost('${post.id}')"
+>
 
         <div class="fb-header">
 
@@ -637,7 +640,7 @@ ${
 
           <button
             class="vote-btn"
-            onclick="voteOption('${post.id}', ${index}, event)"
+            onclick="event.stopPropagation(); voteOption('${post.id}', ${index}, event)"
           >
             🗳️ Voter
           </button>
@@ -661,7 +664,7 @@ ${
 
           <button
           class="fb-action-btn"
-          onclick="likePost('${post.id}', event)"
+          onclick="event.stopPropagation(); likePost('${post.id}', event)"
 id="likeBtn-${post.id}">
 
             👍 J’aime (${post.likes || 0})
@@ -670,7 +673,7 @@ id="likeBtn-${post.id}">
 
           <button
 class="fb-action-btn"
-onclick="toggleComments('${post.id}')">
+onclick="event.stopPropagation(); toggleComments('${post.id}')"
 
   💬 Commenter (
     ${post.commentCount || 0}
@@ -680,7 +683,7 @@ onclick="toggleComments('${post.id}')">
 
           <button
           class="fb-action-btn"
-          onclick="sharePost('${post.id}')">
+          onclick="event.stopPropagation(); sharePost('${post.id}')"
 
             📤 Partager
 
@@ -1268,6 +1271,11 @@ function stopButtonLoading(button){
   button.innerHTML =
     button.dataset.oldText;
 }
+window.openPost = function(postId){
+
+  window.location.href =
+    "post.html?post=" + postId;
+};
 // =====================
 // ⋮ POST MENU
 // =====================
