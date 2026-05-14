@@ -1475,3 +1475,94 @@ async function(postId){
 
   alert("Lien copié");
 };
+/* ===================== */
+/* FOLLOW USER */
+/* ===================== */
+
+window.followUser = async function(userId){
+
+  try{
+
+    const currentUser =
+      auth.currentUser;
+
+    if(!currentUser){
+
+      alert("Connecte-toi");
+
+      return;
+    }
+
+    if(currentUser.uid === userId){
+
+      return;
+    }
+
+    const followRef =
+      doc(
+        db,
+        "follows",
+        currentUser.uid + "_" + userId
+      );
+
+    const followSnap =
+      await getDoc(followRef);
+
+    if(followSnap.exists()){
+
+      alert("Déjà suivi");
+
+      return;
+    }
+
+    await setDoc(followRef,{
+
+      followerId:currentUser.uid,
+
+      followingId:userId,
+
+      createdAt:serverTimestamp()
+
+    });
+
+    // FOLLOWERS
+    const userRef =
+      doc(db,"users",userId);
+
+    const userSnap =
+      await getDoc(userRef);
+
+    const userData =
+      userSnap.data();
+
+    await updateDoc(userRef,{
+
+      followers:
+      (userData.followers || 0) + 1
+
+    });
+
+    // FOLLOWING
+    const currentRef =
+      doc(db,"users",currentUser.uid);
+
+    const currentSnap =
+      await getDoc(currentRef);
+
+    const currentData =
+      currentSnap.data();
+
+    await updateDoc(currentRef,{
+
+      following:
+      (currentData.following || 0) + 1
+
+    });
+
+    alert("Utilisateur suivi");
+
+  }catch(error){
+
+    console.log(error);
+  }
+};
