@@ -520,7 +520,12 @@ async function loadPosts(){
 >
 
         <div class="fb-header">
-
+<div
+  class="post-menu"
+  onclick="event.stopPropagation(); togglePostMenu('${post.id}')"
+>
+  ⋮
+</div>
           <div class="fb-user-info">
 
             <img
@@ -660,52 +665,49 @@ ${
 
         <div class="fb-line"></div>
 
-        <div class="fb-actions">
+       <div class="fb-actions">
 
-          <button
-          class="fb-action-btn"
-          onclick="event.stopPropagation(); likePost('${post.id}', event)"
-id="likeBtn-${post.id}">
+  <button
+  class="fb-action-btn"
+  onclick="likePost('${post.id}', event)">
 
-            👍 J’aime (${post.likes || 0})
+    👍 J’aime (${post.likes || 0})
 
-          </button>
+  </button>
 
-          <button
-class="fb-action-btn"
-onclick="event.stopPropagation(); toggleComments('${post.id}')"
+  <button
+  class="fb-action-btn"
+  onclick="toggleComments('${post.id}')">
 
-  💬 Commenter (
-    ${post.commentCount || 0}
-  )
+    💬 Commentaires (${post.commentCount || 0})
 
-</button>
+  </button>
 
-          <button
-          class="fb-action-btn"
-          onclick="event.stopPropagation(); sharePost('${post.id}')"
+  <button
+  class="fb-action-btn"
+  onclick="sharePost('${post.id}')">
 
-            📤 Partager
+    📤 Partager
 
-          </button>
+  </button>
 
-          ${
-            isAdmin
-            ?
-            `
-            <button
-            class="fb-action-btn"
-            onclick="deletePost('${post.id}')">
+  ${
+    isAdmin
+    ?
+    `
+    <button
+    class="fb-action-btn"
+    onclick="deletePost('${post.id}')">
 
-              🗑️
+      🗑️
 
-            </button>
-            `
-            :
-            ""
-          }
+    </button>
+    `
+    :
+    ""
+  }
 
-        </div>
+</div>
 
         <div
         class="comments-section"
@@ -1387,3 +1389,72 @@ document.addEventListener("click",(e)=>{
       });
   }
 });
+/* ===================== */
+/* POST MENU */
+/* ===================== */
+
+window.togglePostMenu = function(postId){
+
+  const old =
+    document.getElementById(
+      "menu-" + postId
+    );
+
+  if(old){
+
+    old.remove();
+
+    return;
+  }
+
+  const post =
+    event.target.parentElement;
+
+  const menu =
+    document.createElement("div");
+
+  menu.className =
+    "post-dropdown";
+
+  menu.id =
+    "menu-" + postId;
+
+  menu.innerHTML = `
+
+    <button
+      onclick="savePost('${postId}')"
+    >
+      ⭐ Enregistrer
+    </button>
+
+    <button
+      onclick="copyPostLink('${postId}')"
+    >
+      🔗 Copier lien
+    </button>
+
+    <button>
+      🚨 Signaler
+    </button>
+
+  `;
+
+  post.appendChild(menu);
+};
+
+/* ===================== */
+/* COPY LINK */
+/* ===================== */
+
+window.copyPostLink =
+async function(postId){
+
+  const url =
+    window.location.origin +
+    "/post.html?post=" +
+    postId;
+
+  await navigator.clipboard.writeText(url);
+
+  alert("Lien copié");
+};
