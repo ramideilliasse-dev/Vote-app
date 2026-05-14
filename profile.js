@@ -16,7 +16,46 @@ import {
 import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+// =====================
+// 🌍 USER PROFILE ID
+// =====================
 
+const params =
+  new URLSearchParams(window.location.search);
+
+const profileUserId =
+  params.get("user");
+
+// =====================
+// 👤 CURRENT PROFILE
+// =====================
+
+let currentProfileId = "";
+
+// =====================
+// ✅ VERIFIED BADGE
+// =====================
+
+function showVerifiedBadge(userData){
+
+  const badge =
+    document.getElementById("verifiedBadge");
+
+  if(!badge) return;
+
+  if(
+    userData.role === "verified" ||
+    userData.role === "admin" ||
+    userData.role === "superadmin"
+  ){
+
+    badge.style.display = "inline";
+
+  }else{
+
+    badge.style.display = "none";
+  }
+}
 // =====================
 // 👤 CURRENT USER
 // =====================
@@ -39,10 +78,30 @@ onAuthStateChanged(auth, async(user) => {
 
   currentUserData = userSnap.data();
 
-  await loadProfile(user.uid);
+ const targetUid =
+  profileUserId || user.uid;
 
-  await loadUserPosts(user.uid);
+currentProfileId = targetUid;
 
+await loadProfile(targetUid);
+
+await loadUserPosts(targetUid);
+
+// FOLLOW BUTTON
+const followBtn =
+  document.getElementById("followBtn");
+
+if(followBtn){
+
+  if(targetUid === user.uid){
+
+    followBtn.style.display = "none";
+
+  }else{
+
+    followBtn.style.display = "inline-block";
+  }
+}
 });
 
 // =====================
@@ -90,7 +149,7 @@ async function loadProfile(uid){
     if(!userSnap.exists()) return;
 
     const userData = userSnap.data();
-
+showVerifiedBadge(userData);
     // COVER
     document.getElementById("coverImage").src =
       userData.coverImage ||
@@ -613,4 +672,72 @@ window.openPost = function(postId){
 
   window.location.href =
     "post.html?post=" + postId;
+};
+// =====================
+// ➕ FOLLOW USER
+// =====================
+
+window.followThisUser = async function(){
+
+  try{
+
+    const user = auth.currentUser;
+
+    if(!user){
+      return;
+    }
+
+    if(currentProfileId === user.uid){
+      return;
+    }
+
+    const profileRef =
+      doc(db,"users",currentProfileId);
+
+    const profileSnap =
+      await getDoc(profileRef);
+
+    if(!profileSnap.exists()) return;
+
+    const profileData =
+      profileSnap.data();
+
+    const currentFollowers =
+      profileData.followers || 0;
+
+    await updateDoc(profileRef,{
+      followers: currentFollowers + 1
+    });
+
+    const followBtn =
+      document.getElementById("followBtn");
+
+    if(followBtn){
+
+      followBtn.innerText =
+        "✔️ Suivi";
+
+      followBtn.disabled = true;
+
+      followBtn.style.opacity = "0.8";
+    }
+
+    alert("Utilisateur suivi 🔥");
+
+    await loadProfile(currentProfileId);
+
+  }catch(error){
+
+    console.log(error);
+  }
+};
+
+// =====================
+// 🚪 LOGOUT
+// =====================
+
+window.logout = function(){
+
+  window.location.href =
+    "settings.html";
 };
