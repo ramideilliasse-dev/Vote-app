@@ -1564,3 +1564,179 @@ window.followUser = async function(userId){
     console.log(error);
   }
 };
+// =====================
+// 🔎 SEARCH
+// =====================
+
+window.searchContent = async function(){
+
+  try{
+
+    const input =
+      document.getElementById("searchInput");
+
+    const results =
+      document.getElementById("searchResults");
+
+    if(!input || !results) return;
+
+    const value =
+      input.value.toLowerCase().trim();
+
+    if(value.length < 1){
+
+      results.style.display = "none";
+
+      results.innerHTML = "";
+
+      return;
+    }
+
+    let html = "";
+
+    // =====================
+    // 👤 USERS
+    // =====================
+
+    const usersSnapshot =
+      await getDocs(collection(db,"users"));
+
+    usersSnapshot.forEach((docSnap)=>{
+
+      const user =
+        docSnap.data();
+
+      const username =
+        (user.username || "")
+        .toLowerCase();
+
+      if(username.includes(value)){
+
+        html += `
+
+        <div
+          class="search-item"
+          onclick="openUserProfile('${user.uid}')"
+        >
+
+          <img
+            src="${
+              user.profileImage ||
+              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+            }"
+            class="search-avatar"
+          >
+
+          <div>
+
+            <div class="search-title">
+              ${user.username || "Utilisateur"}
+            </div>
+
+            <div class="search-sub">
+              👤 Utilisateur
+            </div>
+
+          </div>
+
+        </div>
+
+        `;
+      }
+    });
+
+    // =====================
+    // 📄 POSTS
+    // =====================
+
+    const postsSnapshot =
+      await getDocs(collection(db,"posts"));
+
+    postsSnapshot.forEach((docSnap)=>{
+
+      const post =
+        docSnap.data();
+
+      const question =
+        (post.question || "")
+        .toLowerCase();
+
+      if(question.includes(value)){
+
+        html += `
+
+        <div
+          class="search-item"
+          onclick="openPost('${docSnap.id}')"
+        >
+
+          <img
+            src="${
+              post.profileImage ||
+              'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+            }"
+            class="search-avatar"
+          >
+
+          <div>
+
+            <div class="search-title">
+              ${post.question || ""}
+            </div>
+
+            <div class="search-sub">
+              📄 Publication de ${post.username || ""}
+            </div>
+
+          </div>
+
+        </div>
+
+        `;
+      }
+    });
+
+    if(html === ""){
+
+      html = `
+
+      <div class="search-item">
+
+        Aucun résultat
+
+      </div>
+
+      `;
+    }
+
+    results.innerHTML = html;
+
+    results.style.display = "block";
+
+  }catch(error){
+
+    console.log(error);
+  }
+};
+
+// =====================
+// ❌ CLOSE SEARCH
+// =====================
+
+document.addEventListener("click",(e)=>{
+
+  const results =
+    document.getElementById("searchResults");
+
+  const searchBox =
+    document.querySelector(".search-box");
+
+  if(
+    results &&
+    searchBox &&
+    !searchBox.contains(e.target)
+  ){
+
+    results.style.display = "none";
+  }
+});
