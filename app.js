@@ -545,6 +545,21 @@ async function loadPosts(){
 
                 ${post.username || "Utilisateur"}
 
+${
+  post.role === "superadmin"
+  ?
+  `<span style="color:#f7b500;">👑</span>`
+  :
+  post.role === "admin"
+  ?
+  `<span style="color:#1877f2;">✔️</span>`
+  :
+  post.verified
+  ?
+  `<span style="color:#1877f2;">✔️</span>`
+  :
+  ""
+}
               </div>
 
               <div class="fb-time">
@@ -827,7 +842,9 @@ window.addComment = async function(postId,event){
       userId:user.uid,
 
       username:userData.username,
+role:userData.role || "user",
 
+verified:userData.verified || false,
       profileImage:
       userData.profileImage || "",
 
