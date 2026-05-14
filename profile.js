@@ -9,12 +9,19 @@ import {
   getDocs,
   serverTimestamp,
   query,
-  where
+  where,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+// =====================
+// 👤 CURRENT USER
+// =====================
+
+let currentUserData = null;
 
 // =====================
 // 👤 CHARGER PROFIL
@@ -26,6 +33,11 @@ onAuthStateChanged(auth, async(user) => {
     window.location.href = "index.html";
     return;
   }
+
+  const userSnap =
+    await getDoc(doc(db,"users",user.uid));
+
+  currentUserData = userSnap.data();
 
   await loadProfile(user.uid);
 
@@ -89,15 +101,32 @@ async function loadProfile(uid){
       userData.profileImage ||
       "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-    // INFOS
-    document.getElementById("profileUsername").innerText =
-      userData.username || "Utilisateur";
+    // USERNAME
+    let verifiedBadge = "";
 
+    if(userData.verified === true){
+
+      verifiedBadge = `
+        <span style="
+          color:#1877f2;
+          font-size:18px;
+          margin-left:5px;
+        ">
+          ✔️
+        </span>
+      `;
+    }
+
+    document.getElementById("profileUsername").innerHTML =
+      (userData.username || "Utilisateur")
+      + verifiedBadge;
+
+    // BIO
     document.getElementById("profileBio").innerText =
       userData.bio || "Salut 👋";
 
     // =====================
-    // 📊 CALCUL POSTS + LIKES
+    // 📊 POSTS + LIKES
     // =====================
 
     const postsQuery = query(
@@ -177,12 +206,12 @@ window.saveProfile = async function(){
 
     let coverImage = oldData.coverImage || "";
 
-    // 📸 upload photo profil
+    // PHOTO PROFIL
     if(profileFile){
       profileImage = await uploadImage(profileFile);
     }
 
-    // 📸 upload couverture
+    // PHOTO COVER
     if(coverFile){
       coverImage = await uploadImage(coverFile);
     }
@@ -283,6 +312,8 @@ window.createPost = async function(){
 
       username:userData.username,
 
+      verified:userData.verified || false,
+
       profileImage:userData.profileImage || "",
 
       question,
@@ -324,6 +355,37 @@ window.createPost = async function(){
 
     alert(error.message);
 
+  }
+};
+
+// =====================
+// 🗑️ DELETE POST
+// =====================
+
+window.deletePost = async function(postId){
+
+  try{
+
+    const confirmDelete =
+      confirm("Supprimer ce post ?");
+
+    if(!confirmDelete) return;
+
+    await deleteDoc(doc(db,"posts",postId));
+
+    alert("Post supprimé");
+
+    const user = auth.currentUser;
+
+    await loadUserPosts(user.uid);
+
+    await loadProfile(user.uid);
+
+  }catch(error){
+
+    console.log(error);
+
+    alert("Erreur suppression");
   }
 };
 
@@ -372,6 +434,21 @@ async function loadUserPosts(uid){
 
     posts.forEach((post) => {
 
+      let verifiedBadge = "";
+
+      if(post.verified === true){
+
+        verifiedBadge = `
+          <span style="
+            color:#1877f2;
+            font-size:15px;
+            margin-left:4px;
+          ">
+            ✔️
+          </span>
+        `;
+      }
+
       html += `
 
       <div class="profile-post-card">
@@ -389,6 +466,7 @@ async function loadUserPosts(uid){
           <div>
             <div class="profile-post-name">
               ${post.username}
+              ${verifiedBadge}
             </div>
           </div>
 
@@ -446,6 +524,44 @@ async function loadUserPosts(uid){
 
         </div>
 
+        <div style="
+          display:flex;
+          gap:10px;
+          padding:15px;
+        ">
+
+          <button
+            onclick="openPost('${post.id}')"
+            style="
+              flex:1;
+              border:none;
+              background:#1877f2;
+              color:white;
+              padding:12px;
+              border-radius:12px;
+              font-weight:bold;
+            "
+          >
+            Ouvrir
+          </button>
+
+          <button
+            onclick="deletePost('${post.id}')"
+            style="
+              flex:1;
+              border:none;
+              background:#e53935;
+              color:white;
+              padding:12px;
+              border-radius:12px;
+              font-weight:bold;
+            "
+          >
+            Supprimer
+          </button>
+
+        </div>
+
       </div>
 
       `;
@@ -488,3 +604,13 @@ if(totalOptions){
   });
 
 }
+
+// =====================
+// 📖 OPEN POST
+// =====================
+
+window.openPost = function(postId){
+
+  window.location.href =
+    "post.html?post=" + postId;
+};
