@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -56,18 +56,21 @@ body{
   font-size:34px;
   font-weight:bold;
   color:#050505;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
 }
 
 /* VERIFIED */
 .verified-badge{
   color:#1877f2;
   font-size:22px;
-  margin-left:8px;
 }
 
 /* BIO */
 .profile-bio{
-  margin-top:10px;
+  margin-top:15px;
   color:#65676b;
   font-size:17px;
 }
@@ -127,6 +130,7 @@ body{
 .follow-btn{
   background:#16a34a;
   color:white;
+  margin-top:15px;
 }
 
 /* CREATE POST */
@@ -286,24 +290,6 @@ button{
   color:#65676b;
 }
 
-/* ACTIONS */
-.post-actions{
-  display:flex;
-  justify-content:space-around;
-  border-top:1px solid #ddd;
-  padding:10px;
-}
-
-.action-btn{
-  background:none;
-  color:#65676b;
-  font-weight:bold;
-}
-
-.action-btn:hover{
-  background:#f0f2f5;
-}
-
 /* EDIT BOX */
 .edit-profile-box{
   display:none;
@@ -372,14 +358,6 @@ id="profileUsername">
 
 @username
 
-<span
-id="verifiedBadge"
-class="verified-badge"
-style="display:none;"
->
-✔️
-</span>
-
 </div>
 
 <button
@@ -388,7 +366,7 @@ class="profile-btn follow-btn"
 onclick="followThisUser()"
 style="display:none;"
 >
-Suivre
+➕ Suivre
 </button>
 
 <div
@@ -507,117 +485,8 @@ placeholder="Pose une question">
 
 </select>
 
-<!-- OPTION A -->
 <input id="optionA" placeholder="Option 1">
-
-<label class="upload-box">
-
-🖼️ Image Option 1
-
-<input
-type="file"
-id="imageA"
-class="file-input"
-accept="image/*">
-
-</label>
-
-<!-- OPTION B -->
 <input id="optionB" placeholder="Option 2">
-
-<label class="upload-box">
-
-🖼️ Image Option 2
-
-<input
-type="file"
-id="imageB"
-class="file-input"
-accept="image/*">
-
-</label>
-
-<!-- OPTION C -->
-<div id="option3Box" style="display:none;">
-
-<input id="optionC" placeholder="Option 3">
-
-<label class="upload-box">
-
-🖼️ Image Option 3
-
-<input
-type="file"
-id="imageC"
-class="file-input"
-accept="image/*">
-
-</label>
-
-</div>
-
-<!-- OPTION D -->
-<div id="option4Box" style="display:none;">
-
-<input id="optionD" placeholder="Option 4">
-
-<label class="upload-box">
-
-🖼️ Image Option 4
-
-<input
-type="file"
-id="imageD"
-class="file-input"
-accept="image/*">
-
-</label>
-
-</div>
-
-<!-- OPTION E -->
-<div id="option5Box" style="display:none;">
-
-<input id="optionE" placeholder="Option 5">
-
-<label class="upload-box">
-
-🖼️ Image Option 5
-
-<input
-type="file"
-id="imageE"
-class="file-input"
-accept="image/*">
-
-</label>
-
-</div>
-
-<!-- OPTION F -->
-<div id="option6Box" style="display:none;">
-
-<input id="optionF" placeholder="Option 6">
-
-<label class="upload-box">
-
-🖼️ Image Option 6
-
-<input
-type="file"
-id="imageF"
-class="file-input"
-accept="image/*">
-
-</label>
-
-</div>
-
-<button onclick="createPost()">
-
-🚀 Publier
-
-</button>
 
 </div>
 
@@ -625,9 +494,7 @@ accept="image/*">
 <div class="posts-section">
 
 <div class="posts-title">
-
 🔥 Publications
-
 </div>
 
 <div class="user-posts" id="userPosts"></div>
@@ -639,24 +506,48 @@ accept="image/*">
 const totalOptions =
 document.getElementById("totalOptions");
 
+if(totalOptions){
+
 totalOptions.addEventListener("change", () => {
 
   const total =
     parseInt(totalOptions.value);
 
-  document.getElementById("option3Box").style.display =
-    total >= 3 ? "block" : "none";
+  const option3 =
+    document.getElementById("option3Box");
 
-  document.getElementById("option4Box").style.display =
-    total >= 4 ? "block" : "none";
+  const option4 =
+    document.getElementById("option4Box");
 
-  document.getElementById("option5Box").style.display =
-    total >= 5 ? "block" : "none";
+  const option5 =
+    document.getElementById("option5Box");
 
-  document.getElementById("option6Box").style.display =
-    total >= 6 ? "block" : "none";
+  const option6 =
+    document.getElementById("option6Box");
+
+  if(option3){
+    option3.style.display =
+      total >= 3 ? "block" : "none";
+  }
+
+  if(option4){
+    option4.style.display =
+      total >= 4 ? "block" : "none";
+  }
+
+  if(option5){
+    option5.style.display =
+      total >= 5 ? "block" : "none";
+  }
+
+  if(option6){
+    option6.style.display =
+      total >= 6 ? "block" : "none";
+  }
 
 });
+
+}
 
 function toggleEditProfile(){
 
@@ -667,10 +558,9 @@ function toggleEditProfile(){
 
     box.style.display = "none";
 
-  } else {
+  }else{
 
     box.style.display = "block";
-
   }
 }
 
