@@ -534,14 +534,14 @@ async function loadPosts(){
                 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
               }"
               class="fb-profile"
-              onclick="openUserProfile('${post.userId || ""}')"
+              onclick="event.stopPropagation(); openUserProfile('${post.userId || ""}')"
             >
 
             <div>
 
               <div
               class="fb-username"
-              onclick="openUserProfile('${post.userId || ""}')">
+              onclick="event.stopPropagation(); openUserProfile('${post.userId || ""}')"
 
                 ${post.username || "Utilisateur"}
 
@@ -643,7 +643,7 @@ ${
             <img
               src="${option.imageUrl}"
               class="fb-option-image"
-              onclick="zoomImage('${option.imageUrl}')"
+              onclick="event.stopPropagation(); zoomImage('${option.imageUrl}')"
             >
             `
             :
@@ -683,24 +683,22 @@ ${
        <div class="fb-actions">
 
   <button
-  class="fb-action-btn"
-  onclick="likePost('${post.id}', event)">
-
+class="fb-action-btn"
+onclick="event.stopPropagation(); likePost('${post.id}', event)">
     👍 J’aime (${post.likes || 0})
 
   </button>
 
   <button
-  class="fb-action-btn"
-  onclick="toggleComments('${post.id}')">
-
+class="fb-action-btn"
+onclick="event.stopPropagation(); toggleComments('${post.id}')">
     💬 Commentaires (${post.commentCount || 0})
 
   </button>
 
   <button
-  class="fb-action-btn"
-  onclick="sharePost('${post.id}')">
+class="fb-action-btn"
+onclick="event.stopPropagation(); sharePost('${post.id}')">
 
     📤 Partager
 
