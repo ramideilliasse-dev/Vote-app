@@ -3,6 +3,7 @@
 import {
   doc,
   getDoc,
+  setDoc,
   updateDoc,
   addDoc,
   collection,
@@ -691,6 +692,36 @@ window.followThisUser = async function(){
       return;
     }
 
+    // FOLLOW ID UNIQUE
+    const followId =
+      user.uid + "_" + currentProfileId;
+
+    const followRef =
+      doc(db,"follows",followId);
+
+    // CHECK SI DÉJÀ SUIVI
+    const followSnap =
+      await getDoc(followRef);
+
+    if(followSnap.exists()){
+
+      alert("Tu suis déjà cet utilisateur");
+
+      return;
+    }
+
+    // SAVE FOLLOW
+    await setDoc(followRef,{
+
+      followerId:user.uid,
+
+      followingId:currentProfileId,
+
+      createdAt:new Date()
+
+    });
+
+    // USER PROFILE
     const profileRef =
       doc(db,"users",currentProfileId);
 
@@ -705,10 +736,14 @@ window.followThisUser = async function(){
     const currentFollowers =
       profileData.followers || 0;
 
+    // UPDATE FOLLOWERS
     await updateDoc(profileRef,{
+
       followers: currentFollowers + 1
+
     });
 
+    // BUTTON
     const followBtn =
       document.getElementById("followBtn");
 
@@ -731,7 +766,6 @@ window.followThisUser = async function(){
     console.log(error);
   }
 };
-
 // =====================
 // 🚪 LOGOUT
 // =====================
