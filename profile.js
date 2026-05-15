@@ -92,18 +92,30 @@ await loadUserPosts(targetUid);
 const followBtn =
   document.getElementById("followBtn");
 
-if(followBtn){
+// MESSAGE BUTTON
+const messageBtn =
+  document.getElementById("messageBtn");
 
-  if(targetUid === user.uid){
+if(targetUid === user.uid){
 
+  if(followBtn){
     followBtn.style.display = "none";
+  }
 
-  }else{
+  if(messageBtn){
+    messageBtn.style.display = "none";
+  }
 
+}else{
+
+  if(followBtn){
     followBtn.style.display = "inline-block";
   }
+
+  if(messageBtn){
+    messageBtn.style.display = "inline-block";
+  }
 }
-});
 
 // =====================
 // 📸 UPLOAD IMAGE
