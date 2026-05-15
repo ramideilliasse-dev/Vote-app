@@ -116,7 +116,7 @@ if(targetUid === user.uid){
     messageBtn.style.display = "inline-block";
   }
 }
-
+});
 // =====================
 // 📸 UPLOAD IMAGE
 // =====================
