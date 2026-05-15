@@ -403,8 +403,9 @@ Salut 👋
 <button
 class="profile-btn edit-btn"
 onclick="toggleEditProfile()">
-
 ✏️ Modifier Profil
+</button>
+
 <button
 class="profile-btn"
 id="messageBtn"
@@ -417,13 +418,11 @@ display:none;
 >
 💬 Message
 </button>
-</button>
+
 <button
 class="profile-btn logout-btn"
 onclick="logout()">
-
 🚪 Déconnexion
-
 </button>
 
 </div>
@@ -497,7 +496,26 @@ placeholder="Pose une question">
 
 <input id="optionA" placeholder="Option 1">
 <input id="optionB" placeholder="Option 2">
+<input type="file" id="imageA" accept="image/*">
+<input type="file" id="imageB" accept="image/*">
+<div id="option3Box" style="display:none;">
+  <input id="optionC" placeholder="Option 3">
+  <input type="file" id="imageC" accept="image/*">
+</div>
 
+<div id="option4Box" style="display:none;">
+  <input id="optionD" placeholder="Option 4">
+  <input type="file" id="imageD" accept="image/*">
+</div>
+
+<div id="option5Box" style="display:none;">
+  <input id="optionE" placeholder="Option 5">
+  <input type="file" id="imageE" accept="image/*">
+</div>
+
+<div id="option6Box" style="display:none;">
+  <input id="optionF" placeholder="Option 6">
+  <input type="file" id="imageF" accept="image/*">
 </div>
 
 <!-- POSTS -->
