@@ -775,3 +775,12 @@ window.logout = function(){
   window.location.href =
     "settings.html";
 };
+// =====================
+// 💬 OPEN CHAT
+// =====================
+
+window.openChat = function(){
+
+  window.location.href =
+    "chat.html?user=" + currentProfileId;
+};
