@@ -1,0 +1,106 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Recherche</title>
+
+<style>
+
+body{
+  margin:0;
+  background:#f0f2f5;
+  font-family:Arial,sans-serif;
+}
+
+.topbar{
+  background:white;
+  padding:15px;
+  display:flex;
+  gap:10px;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.search-input{
+  flex:1;
+  padding:14px;
+  border:none;
+  border-radius:15px;
+  background:#f0f2f5;
+  font-size:16px;
+}
+
+.back-btn{
+  border:none;
+  width:50px;
+  border-radius:15px;
+  background:#1877f2;
+  color:white;
+  font-size:20px;
+}
+
+#results{
+  padding:15px;
+}
+
+.search-card{
+  background:white;
+  border-radius:20px;
+  padding:15px;
+  margin-bottom:15px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  cursor:pointer;
+}
+
+.search-avatar{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.search-title{
+  font-weight:bold;
+  font-size:17px;
+}
+
+.search-sub{
+  color:gray;
+  margin-top:5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+
+<button
+class="back-btn"
+onclick="history.back()"
+>
+←
+</button>
+
+<input
+type="text"
+id="searchInput"
+class="search-input"
+placeholder="Rechercher..."
+oninput="searchContent()"
+>
+
+</div>
+
+<div id="results"></div>
+
+<script type="module" src="search.js"></script>
+
+</body>
+</html>
