@@ -1,0 +1,85 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Messages</title>
+
+<style>
+
+body{
+  margin:0;
+  background:#f0f2f5;
+  font-family:Arial,sans-serif;
+}
+
+.topbar{
+  background:white;
+  padding:15px;
+  font-size:24px;
+  font-weight:bold;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  position:sticky;
+  top:0;
+}
+
+#conversations{
+  padding:15px;
+}
+
+.conversation-card{
+  background:white;
+  border-radius:18px;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:15px;
+  cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+.conversation-card:hover{
+  background:#f7f7f7;
+}
+
+.conversation-image{
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.conversation-name{
+  font-weight:bold;
+  font-size:18px;
+}
+
+.conversation-last{
+  color:gray;
+  margin-top:5px;
+}
+
+.empty-box{
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+💬 Messages
+</div>
+
+<div id="conversations"></div>
+
+<script type="module" src="messages.js"></script>
+
+</body>
+</html>
