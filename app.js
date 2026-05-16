@@ -409,7 +409,13 @@ async function loadNotifications(){
 
         // COMMENT
         if(notif.type === "comment"){
+if(notif.type === "message"){
 
+  notifIcon = "💬";
+
+  notifText =
+    "Nouveau message reçu";
+}
           notifIcon = "💬";
 
           notifText =
