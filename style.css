@@ -655,3 +655,23 @@ button{
   color:gray;
   font-size:13px;
 }
+.top-btn-wrapper{
+  position:relative;
+}
+
+.notif-badge{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  background:red;
+  color:white;
+  min-width:20px;
+  height:20px;
+  border-radius:50%;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  padding:2px;
+}
