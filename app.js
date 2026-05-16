@@ -12,7 +12,9 @@ import {
   serverTimestamp,
   query,
   where,
-  onSnapshot
+  onSnapshot,
+  arrayUnion,
+  arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   createUserWithEmailAndPassword,
@@ -692,7 +694,7 @@ ${
 
   <button
 class="fb-action-btn"
-onclick="event.stopPropagation(); likePost('${post.id}', event)">
+onclick="toggleLike('${post.id}')"
     👍 J’aime (${post.likes || 0})
 
   </button>
@@ -1801,3 +1803,76 @@ function loadMessageBadge(){
   });
 
 }
+// =====================
+// ❤️ TOGGLE LIKE
+// =====================
+
+window.toggleLike = async function(postId){
+
+  try{
+
+    const user =
+      auth.currentUser;
+
+    if(!user){
+
+      alert("Connecte-toi");
+
+      return;
+    }
+
+    const postRef =
+      doc(db,"posts",postId);
+
+    const postSnap =
+      await getDoc(postRef);
+
+    if(!postSnap.exists()) return;
+
+    const postData =
+      postSnap.data();
+
+    let likedBy =
+      postData.likedBy || [];
+
+    const alreadyLiked =
+      likedBy.includes(user.uid);
+
+    if(alreadyLiked){
+
+      // REMOVE LIKE
+      await updateDoc(postRef,{
+
+        likedBy:
+          arrayRemove(user.uid),
+
+        likes:
+          Math.max(
+            (postData.likes || 1)-1,
+            0
+          )
+
+      });
+
+    }else{
+
+      // ADD LIKE
+      await updateDoc(postRef,{
+
+        likedBy:
+          arrayUnion(user.uid),
+
+        likes:
+          (postData.likes || 0)+1
+
+      });
+
+    }
+
+    loadPosts();
+
+  }catch(error){
+
+    console.log(error);
+  }
+};
