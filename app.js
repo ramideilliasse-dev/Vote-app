@@ -174,7 +174,7 @@ onAuthStateChanged(auth, async(user)=>{
       await loadPosts();
 
       await loadNotifications();
-
+loadMessageBadge();
     }else{
 
       if(authCard){
@@ -1746,3 +1746,56 @@ document.addEventListener("click",(e)=>{
     results.style.display = "none";
   }
 });
+// =====================
+// 💬 MESSAGE BADGE
+// =====================
+
+function loadMessageBadge(){
+
+  const user =
+    auth.currentUser;
+
+  if(!user) return;
+
+  const q =
+    query(
+      collection(db,"notifications"),
+      where("toUserId","==",user.uid)
+    );
+
+  onSnapshot(q,(snapshot)=>{
+
+    let count = 0;
+
+    snapshot.forEach((doc)=>{
+
+      const notif =
+        doc.data();
+
+      if(notif.type === "message"){
+
+        count++;
+      }
+    });
+
+    const badge =
+      document.getElementById(
+        "messageBadge"
+      );
+
+    if(!badge) return;
+
+    if(count > 0){
+
+      badge.style.display = "flex";
+
+      badge.innerText = count;
+
+    }else{
+
+      badge.style.display = "none";
+    }
+
+  });
+
+}
