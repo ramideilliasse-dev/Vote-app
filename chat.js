@@ -8,11 +8,10 @@ import {
   serverTimestamp,
   query,
   where,
- updateDoc
+  updateDoc,
   orderBy,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
 const params =
   new URLSearchParams(window.location.search);
 
@@ -86,25 +85,11 @@ window.sendMessage = async function(){
     const userData =
       userSnap.data();
 
+    // SAVE MESSAGE
     await addDoc(
       collection(db,"messages"),
       {
-await addDoc(
-  collection(db,"notifications"),
-  {
 
-    toUserId:otherUserId,
-
-    fromUserId:user.uid,
-
-    type:"message",
-
-    text:text,
-
-    createdAt:serverTimestamp()
-
-  }
-);
         chatId,
 
         senderId:user.uid,
@@ -112,12 +97,32 @@ await addDoc(
         receiverId:otherUserId,
 
         text,
-seen:false
+
+        seen:false,
+
         username:
           userData.username || "Utilisateur",
 
         profileImage:
           userData.profileImage || "",
+
+        createdAt:serverTimestamp()
+
+      }
+    );
+
+    // SAVE NOTIFICATION
+    await addDoc(
+      collection(db,"notifications"),
+      {
+
+        toUserId:otherUserId,
+
+        fromUserId:user.uid,
+
+        type:"message",
+
+        text:text,
 
         createdAt:serverTimestamp()
 
@@ -131,7 +136,6 @@ seen:false
     console.log(error);
   }
 };
-
 // =====================
 // 📩 LOAD REALTIME MESSAGES
 // =====================
