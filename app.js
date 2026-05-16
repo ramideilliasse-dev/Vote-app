@@ -9,9 +9,11 @@ import {
   collection,
   addDoc,
   getDocs,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  where,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
