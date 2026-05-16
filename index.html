@@ -527,12 +527,24 @@ body{
   onclick="window.location.href='admin.html'"
 >
 👑
- <button
-  class="top-btn"
-  onclick="window.location.href='messages.html'"
+ <div
+class="top-btn-wrapper"
+onclick="window.location.href='messages.html'"
 >
+
+<button class="top-btn">
   💬
 </button>
+
+<div
+id="messageBadge"
+class="notif-badge"
+style="display:none;"
+>
+0
+</div>
+
+</div>
  
      <button
   class="top-btn"
