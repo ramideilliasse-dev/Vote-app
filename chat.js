@@ -88,7 +88,22 @@ window.sendMessage = async function(){
     await addDoc(
       collection(db,"messages"),
       {
+await addDoc(
+  collection(db,"notifications"),
+  {
 
+    toUserId:otherUserId,
+
+    fromUserId:user.uid,
+
+    type:"message",
+
+    text:text,
+
+    createdAt:serverTimestamp()
+
+  }
+);
         chatId,
 
         senderId:user.uid,
