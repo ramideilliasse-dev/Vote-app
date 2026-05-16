@@ -8,6 +8,7 @@ import {
   serverTimestamp,
   query,
   where,
+ updateDoc
   orderBy,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -111,7 +112,7 @@ await addDoc(
         receiverId:otherUserId,
 
         text,
-
+seen:false
         username:
           userData.username || "Utilisateur",
 
@@ -160,7 +161,26 @@ function loadMessagesRealtime(){
     onSnapshot(q,(snapshot)=>{
 
       let html = "";
+snapshot.forEach(async(docSnap)=>{
 
+  const msg =
+    docSnap.data();
+
+  // MESSAGE REÇU
+  if(
+    msg.receiverId === user.uid &&
+    msg.seen !== true
+  ){
+
+    await updateDoc(
+      doc(db,"messages",docSnap.id),
+      {
+        seen:true
+      }
+    );
+  }
+
+});
       snapshot.forEach((docSnap)=>{
 
         const msg =
@@ -178,7 +198,17 @@ function loadMessagesRealtime(){
         "
         >
 
-          ${msg.text}
+         ${msg.text}
+
+<div class="seen-text">
+
+${
+  msg.seen
+  ? "✔✔ Vu"
+  : "✔ Envoyé"
+}
+
+</div>
 
         </div>
 
