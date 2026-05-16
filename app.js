@@ -692,12 +692,12 @@ ${
 
        <div class="fb-actions">
 
-  <button
+ <button
 class="fb-action-btn"
-onclick="toggleLike('${post.id}')"
-    👍 J’aime (${post.likes || 0})
-
-  </button>
+onclick="event.stopPropagation(); toggleLike('${post.id}')"
+>
+  👍 J’aime (${post.likes || 0})
+</button>
 
   <button
 class="fb-action-btn"
