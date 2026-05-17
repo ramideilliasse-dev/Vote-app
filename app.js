@@ -179,6 +179,9 @@ onAuthStateChanged(auth, async(user)=>{
       await loadPosts();
 
       await loadNotifications();
+
+loadNotificationBadge();
+
 loadMessageBadge();
     }else{
 
@@ -1971,3 +1974,108 @@ window.openSearch = function(){
     searchContent();
   }
 };
+/* ===================== */
+/* NOTIFICATION BADGE */
+/* ===================== */
+
+async function loadNotificationBadge(){
+
+  if(!currentUser) return;
+
+  const notifBadge =
+    document.getElementById("notifBadge");
+
+  if(!notifBadge) return;
+
+  onSnapshot(
+
+    collection(
+      db,
+      "users",
+      currentUser.uid,
+      "notifications"
+    ),
+
+    (snapshot)=>{
+
+      let unread = 0;
+
+      snapshot.forEach(doc=>{
+
+        const data = doc.data();
+
+        if(!data.read){
+
+          unread++;
+        }
+      });
+
+      if(unread > 0){
+
+        notifBadge.style.display =
+          "flex";
+
+        notifBadge.innerText =
+          unread;
+
+      }else{
+
+        notifBadge.style.display =
+          "none";
+      }
+    }
+  );
+}
+
+/* ===================== */
+/* MESSAGE BADGE */
+/* ===================== */
+
+async function loadMessageBadge(){
+
+  if(!currentUser) return;
+
+  const badge =
+    document.getElementById("messageBadge");
+
+  if(!badge) return;
+
+  onSnapshot(
+
+    collection(
+      db,
+      "users",
+      currentUser.uid,
+      "inbox"
+    ),
+
+    (snapshot)=>{
+
+      let unread = 0;
+
+      snapshot.forEach(doc=>{
+
+        const data = doc.data();
+
+        if(data.unread){
+
+          unread++;
+        }
+      });
+
+      if(unread > 0){
+
+        badge.style.display =
+          "flex";
+
+        badge.innerText =
+          unread;
+
+      }else{
+
+        badge.style.display =
+          "none";
+      }
+    }
+  );
+}
