@@ -1763,24 +1763,12 @@ function loadMessageBadge(){
 
   const q =
     query(
-      collection(db,"notifications"),
-      where("toUserId","==",user.uid)
+      collection(db,"messages"),
+      where("receiverId","==",user.uid),
+      where("seen","==",false)
     );
 
   onSnapshot(q,(snapshot)=>{
-
-    let count = 0;
-
-    snapshot.forEach((doc)=>{
-
-      const notif =
-        doc.data();
-
-      if(notif.type === "message"){
-
-        count++;
-      }
-    });
 
     const badge =
       document.getElementById(
@@ -1789,19 +1777,24 @@ function loadMessageBadge(){
 
     if(!badge) return;
 
+    const count =
+      snapshot.size;
+
     if(count > 0){
 
-      badge.style.display = "flex";
+      badge.style.display =
+        "flex";
 
-      badge.innerText = count;
+      badge.innerText =
+        count;
 
     }else{
 
-      badge.style.display = "none";
+      badge.style.display =
+        "none";
     }
 
   });
-
 }
 // =====================
 // ❤️ TOGGLE LIKE
