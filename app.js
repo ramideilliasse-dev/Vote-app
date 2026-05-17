@@ -1926,3 +1926,55 @@ window.openSearch = function(){
     });
   }
 };
+// =====================
+// 📱 NAVIGATION
+// =====================
+
+window.goHome = function(){
+
+  window.location.href =
+    "index.html";
+};
+
+window.openInbox = function(){
+
+  window.location.href =
+    "inbox.html";
+};
+
+window.openSettings = function(){
+
+  window.location.href =
+    "settings.html";
+};
+
+window.openNotifications = function(){
+
+  const notifBox =
+    document.getElementById("notifList");
+
+  if(notifBox){
+
+    notifBox.scrollIntoView({
+      behavior:"smooth"
+    });
+  }
+};
+
+window.openSearch = function(){
+
+  const text =
+    prompt("Recherche utilisateur ou publication");
+
+  if(!text) return;
+
+  const input =
+    document.getElementById("searchInput");
+
+  if(input){
+
+    input.value = text;
+
+    searchContent();
+  }
+};
