@@ -7,6 +7,8 @@ import {
   collection,
   serverTimestamp,
   query,
+ deleteDoc,
+getDocs,
   where,
   updateDoc,
   orderBy,
@@ -146,7 +148,23 @@ function loadMessagesRealtime(){
 
     const user =
       auth.currentUser;
+const notifQuery =
+  query(
+    collection(db,"notifications"),
+    where("toUserId","==",user.uid),
+    where("type","==","message")
+  );
 
+const notifSnap =
+  await getDocs(notifQuery);
+
+notifSnap.forEach(async(docSnap)=>{
+
+  await deleteDoc(
+    doc(db,"notifications",docSnap.id)
+  );
+
+});
     if(!user) return;
 
     // CHAT ID
