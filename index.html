@@ -405,7 +405,12 @@ body{
 .post-menu button:hover{
   background:#f3f3f3;
 }
-
+.search-box,
+.top-right,
+.top-btn-wrapper,
+.notif-badge{
+  display:none !important;
+}
 </style>
 
 </head>
@@ -448,75 +453,34 @@ body{
 
 <div id="mainFeed" style="display:none;">
 
-  <!-- TOPBAR -->
+ <!-- TOPBAR -->
 
-  <div class="topbar">
+<div class="topbar">
 
-    <div class="top-left">
+  <div class="top-left">
 
-      <img
-        id="myProfileImage"
-        src=""
-        onclick="openMyProfile()"
-      >
-
-      <div id="topUsername">
-        Utilisateur
-      </div>
-
-    </div>
-
-    <button
-      class="top-btn"
-      id="adminBtn"
-      style="display:none;"
-      onclick="window.location.href='admin.html'"
+    <img
+      id="myProfileImage"
+      src=""
+      onclick="openMyProfile()"
     >
-      👑
-    </button>
+
+    <div id="topUsername">
+      Utilisateur
+    </div>
 
   </div>
 
-  <!-- POSTS -->
-
-  <div id="feed"></div>
-
-</div>
-
-<!-- BOTTOM NAV -->
-
-<div class="bottom-nav">
-
-  <button onclick="goHome()">
-    🏠
-  </button>
-
-  <button onclick="openSearch()">
-    🔍
-  </button>
-
-  <button onclick="openInbox()">
-    💬
-
-    <div
-      id="messageBadge"
-      class="nav-badge"
-    >
-      0
-    </div>
-
-  </button>
-
-  <button onclick="openNotifications()">
-    🔔
-  </button>
-
-  <button onclick="openSettings()">
-    ⚙️
+  <button
+    class="top-btn"
+    id="adminBtn"
+    style="display:none;"
+    onclick="window.location.href='admin.html'"
+  >
+    👑
   </button>
 
 </div>
-
 <script type="module" src="app.js"></script>
 
 <script>
@@ -555,7 +519,38 @@ window.openSettings = function(){
     "settings.html";
 };
 
-</script>
+<script>
 
+function goHome(){
+
+  window.location.href =
+    "index.html";
+}
+
+function openSearch(){
+
+  window.location.href =
+    "search.html";
+}
+
+function openInbox(){
+
+  window.location.href =
+    "inbox.html";
+}
+
+function openNotifications(){
+
+  window.location.href =
+    "notifications.html";
+}
+
+function openSettings(){
+
+  window.location.href =
+    "settings.html";
+}
+
+</script>
 </body>
 </html>
