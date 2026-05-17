@@ -448,76 +448,80 @@ body{
   </button>
 
 </div>
-
 <!-- MAIN -->
 
 <div id="mainFeed" style="display:none;">
 
- <!-- TOPBAR -->
+  <!-- TOPBAR -->
 
-<div class="topbar">
+  <div class="topbar">
 
-  <div class="top-left">
+    <div class="top-left">
 
-    <img
-      id="myProfileImage"
-      src=""
-      onclick="openMyProfile()"
-    >
+      <img
+        id="myProfileImage"
+        src=""
+        onclick="openMyProfile()"
+      >
 
-    <div id="topUsername">
-      Utilisateur
+      <div id="topUsername">
+        Utilisateur
+      </div>
+
     </div>
+
+    <button
+      class="top-btn"
+      id="adminBtn"
+      style="display:none;"
+      onclick="window.location.href='admin.html'"
+    >
+      👑
+    </button>
 
   </div>
 
-  <button
-    class="top-btn"
-    id="adminBtn"
-    style="display:none;"
-    onclick="window.location.href='admin.html'"
-  >
-    👑
+  <!-- FEED -->
+
+  <div id="feed"></div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+
+<div class="bottom-nav">
+
+  <button onclick="goHome()">
+    🏠
+  </button>
+
+  <button onclick="openSearch()">
+    🔍
+  </button>
+
+  <button onclick="openInbox()">
+    💬
+
+    <div
+      id="messageBadge"
+      class="nav-badge"
+    >
+      0
+    </div>
+
+  </button>
+
+  <button onclick="openNotifications()">
+    🔔
+  </button>
+
+  <button onclick="openSettings()">
+    ⚙️
   </button>
 
 </div>
+
 <script type="module" src="app.js"></script>
-
-<script>
-
-/* ===================== */
-/* BOTTOM NAV FUNCTIONS */
-/* ===================== */
-
-window.goHome = function(){
-
-  window.location.href =
-    "index.html";
-};
-
-window.openSearch = function(){
-
-  window.location.href =
-    "search.html";
-};
-
-window.openInbox = function(){
-
-  window.location.href =
-    "messages.html";
-};
-
-window.openNotifications = function(){
-
-  window.location.href =
-    "notifications.html";
-};
-
-window.openSettings = function(){
-
-  window.location.href =
-    "settings.html";
-};
 
 <script>
 
@@ -552,5 +556,6 @@ function openSettings(){
 }
 
 </script>
+
 </body>
 </html>
