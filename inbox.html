@@ -169,8 +169,14 @@ auth.onAuthStateChanged((user)=>{
         <div>
 
           <div class="conv-name">
-            ${msg.username || "Utilisateur"}
-          </div>
+
+  ${
+    msg.senderId === user.uid
+    ? "Conversation"
+    : msg.username || "Utilisateur"
+  }
+
+</div>
 
           <div class="conv-last">
             ${msg.text || ""}
