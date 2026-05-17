@@ -525,9 +525,8 @@ async function loadPosts(){
 
       html += `
 
-      <div
-  class="fb-post"
-  onclick="openPost('${post.id}')"
+     <div
+class="fb-post"
 >
 
         <div class="fb-header">
@@ -1875,5 +1874,55 @@ window.toggleLike = async function(postId){
   }catch(error){
 
     console.log(error);
+  }
+};
+// =====================
+// 📱 BOTTOM NAV
+// =====================
+
+window.goHome = function(){
+
+  window.location.href =
+    "index.html";
+};
+
+window.openInbox = function(){
+
+  window.location.href =
+    "inbox.html";
+};
+
+window.openSettings = function(){
+
+  window.location.href =
+    "settings.html";
+};
+
+window.openNotifications = function(){
+
+  const notif =
+    document.getElementById("notifContainer");
+
+  if(notif){
+
+    notif.scrollIntoView({
+      behavior:"smooth"
+    });
+  }
+};
+
+window.openSearch = function(){
+
+  const input =
+    document.getElementById("searchInput");
+
+  if(input){
+
+    input.focus();
+
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
   }
 };
