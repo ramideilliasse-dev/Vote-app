@@ -1756,49 +1756,6 @@ document.addEventListener("click",(e)=>{
 // =====================
 // 💬 MESSAGE BADGE
 // =====================
-
-function loadMessageBadge(){
-
-  const user =
-    auth.currentUser;
-
-  if(!user) return;
-
-  const q =
-    query(
-      collection(db,"messages"),
-      where("receiverId","==",user.uid),
-      where("seen","==",false)
-    );
-
-  onSnapshot(q,(snapshot)=>{
-
-    const badge =
-      document.getElementById(
-        "messageBadge"
-      );
-
-    if(!badge) return;
-
-    const count =
-      snapshot.size;
-
-    if(count > 0){
-
-      badge.style.display =
-        "flex";
-
-      badge.innerText =
-        count;
-
-    }else{
-
-      badge.style.display =
-        "none";
-    }
-
-  });
-}
 // =====================
 // ❤️ TOGGLE LIKE
 // =====================
@@ -1980,7 +1937,9 @@ window.openSearch = function(){
 
 async function loadNotificationBadge(){
 
-  if(!currentUser) return;
+  const user = auth.currentUser;
+
+  if(!user) return;
 
   const notifBadge =
     document.getElementById("notifBadge");
@@ -1992,7 +1951,7 @@ async function loadNotificationBadge(){
     collection(
       db,
       "users",
-      currentUser.uid,
+      user.uid,
       "notifications"
     ),
 
@@ -2000,9 +1959,9 @@ async function loadNotificationBadge(){
 
       let unread = 0;
 
-      snapshot.forEach(doc=>{
+      snapshot.forEach((docSnap)=>{
 
-        const data = doc.data();
+        const data = docSnap.data();
 
         if(!data.read){
 
@@ -2033,7 +1992,9 @@ async function loadNotificationBadge(){
 
 async function loadMessageBadge(){
 
-  if(!currentUser) return;
+  const user = auth.currentUser;
+
+  if(!user) return;
 
   const badge =
     document.getElementById("messageBadge");
@@ -2045,7 +2006,7 @@ async function loadMessageBadge(){
     collection(
       db,
       "users",
-      currentUser.uid,
+      user.uid,
       "inbox"
     ),
 
@@ -2053,9 +2014,9 @@ async function loadMessageBadge(){
 
       let unread = 0;
 
-      snapshot.forEach(doc=>{
+      snapshot.forEach((docSnap)=>{
 
-        const data = doc.data();
+        const data = docSnap.data();
 
         if(data.unread){
 
